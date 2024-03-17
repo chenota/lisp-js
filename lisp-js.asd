@@ -9,4 +9,5 @@
   :depends-on (#:cl-ppcre)
   :components ((:file "package")
                (:file "src/lisp-js")
-               (:file "src/tokenizer")))
+               (:file "src/tokenizer")
+               (:file "src/js-convert")))

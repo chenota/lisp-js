@@ -2,8 +2,6 @@
 
 (in-package #:lisp-js)
 
-;; (ql:quickload "cl-ppcre")
-
 ;; Define scanners for tokens
 (defparameter *js-token-scanners*
     ;; List of patterns and what the resultant token should be.
@@ -14,36 +12,36 @@
               ;; Comments
             '(("//.*\\n" nil)
               ;; Printing
-              ("console.log" :PRINT-KW)
+              ("console.log" :PRINT)
               ;; Grouping operators
-              ("\\(" :LPAREN-KW)
-              ("\\)" :RPAREN-KW)
-              ("{" :LBRACKET-KW)
-              ("}" :RBRACKET-KW)
-              ("\\[" :LSQBRACKET-KW)
-              ("\\]" :RSQBRACKET-KW)
+              ("\\(" :LPAREN)
+              ("\\)" :RPAREN)
+              ("{" :LBRACKET)
+              ("}" :RBRACKET)
+              ("\\[" :LSQBRACKET)
+              ("\\]" :RSQBRACKET)
               ;; Delimiters
-              ("," :COMMA-KW)
-              (":" :COLON-KW)
+              ("," :COMMA)
+              (":" :COLON)
               ;; Arithmetic operators
-              ("\\+" :PLUS-KW)
-              ("-" :MINUS-KW)
-              ("\\*" :MUL-KW)
+              ("\\+" :PLUS)
+              ("-" :MINUS)
+              ("\\*" :TIMES)
               ("/" :DIV-KW)
               ;; Logical operators
-              (">=" :GTE-KW)
-              (">" :GT-KW)
-              ("<=" :LTE-KW)
-              ("<" :LT-KW)
-              ("===" :EQ-KW)
+              (">=" :GTE)
+              (">" :GT)
+              ("<=" :LTE)
+              ("<" :LT)
+              ("===" :EQ)
               ;; Boolean
-              ("false" :FALSE-KW)
-              ("true" :TRUE-KW)
+              ("false" :BOOLEAN)
+              ("true" :BOOLEAN)
               ;; Assignment
-              ("=" :ASSIGN-KW)
+              ("=" :ASSIGN)
               ;; Functions
-              ("function" :FUNCTION-KW)
-              ("=>" :ARROW-KW)
+              ("function" :FUNCTION)
+              ("=>" :ARROW)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers
@@ -120,6 +118,26 @@
                         (setq 
                             tokens (cons `(,token ,matched-string) tokens)
                             start-idx (+ start-idx (length matched-string))))))
-                ;; Return reversed token list, since consing results reverses list
-                ;; also return start-idx for potential error messages later
-                (values (reverse tokens) start-idx))))
+                ;; Clean token list then return with start idx
+                (values 
+                    ;; Reduce through entire token stream
+                    (reduce 
+                        (lambda 
+                            (acc new)
+                            ;; Destructure token into token type and value
+                            (destructuring-bind
+                                (token string-match)
+                                new 
+                                ;; Check for special case
+                                (case token 
+                                    ;; If NIL token, don't keep
+                                    ('nil acc)
+                                    ;; If NUMBER token, convert value to number
+                                    (:NUMBER (cons `(,token ,(str-to-num string-match)) acc))
+                                    ;; If BOOLEAN token, convert value to boolean
+                                    (:BOOLEAN (cons `(,token ,(token-str-to-bool string-match)) acc))
+                                    ;; Otherwise, keep original value
+                                    (t (cons new acc)))))
+                        tokens
+                        :initial-value nil)
+                    start-idx))))
