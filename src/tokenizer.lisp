@@ -11,8 +11,45 @@
     ;; Format: (TOKEN-PATTERN TOKEN-NAME)
     (let 
         ((tokens 
-            '(("\\(" :LPAREN-KW)
-              ("\\)" :RPAREN-KW))))
+              ;; Comments
+            '(("//.*\\n" nil)
+              ;; Printing
+              ("console.log" :PRINT-KW)
+              ;; Grouping operators
+              ("\\(" :LPAREN-KW)
+              ("\\)" :RPAREN-KW)
+              ("{" :LBRACKET-KW)
+              ("}" :RBRACKET-KW)
+              ("\\[" :LSQBRACKET-KW)
+              ("\\]" :RSQBRACKET-KW)
+              ;; Delimiters
+              ("," :COMMA-KW)
+              (":" :COLON-KW)
+              ;; Arithmetic operators
+              ("\\+" :PLUS-KW)
+              ("-" :MINUS-KW)
+              ("\\*" :MUL-KW)
+              ("/" :DIV-KW)
+              ;; Logical operators
+              (">=" :GTE-KW)
+              (">" :GT-KW)
+              ("<=" :LTE-KW)
+              ("<" :LT-KW)
+              ("===" :EQ-KW)
+              ;; Boolean
+              ("false" :FALSE-KW)
+              ("true" :TRUE-KW)
+              ;; Assignment
+              ("=" :ASSIGN-KW)
+              ;; Functions
+              ("function" :FUNCTION-KW)
+              ("=>" :ARROW-KW)
+              ;; Variables
+              ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
+              ;; Numbers
+              ("((([0-9]+)(\\.?)([0-9]*))|(\\.[0-9]+))(e(\\+?|-)[0-9]+)?" :NUMBER)
+              ;; Whitespace
+              ("\\s+" nil))))
         ;; Loop through list and compile a regular expression for each pattern
         ;; Result is a list of (TOKEN-REGEX TOKEN-NAME)
         (mapcar 
@@ -21,6 +58,7 @@
                 (destructuring-bind 
                     (pattern result) 
                     x
+                    ;; Force the pattern to match at beginning of string
                     `(,(cl-ppcre:create-scanner (concatenate 'string "^" pattern))
                       ,result)))
             tokens)))
