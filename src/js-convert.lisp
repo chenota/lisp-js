@@ -6,4 +6,7 @@
     0)
 
 (defun token-str-to-bool (str)
-    nil)
+    (alexandria:switch (str :test 'equal) 
+        ("false" nil)
+        ("true" t)
+        (t nil)))

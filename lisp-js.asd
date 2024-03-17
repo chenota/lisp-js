@@ -6,7 +6,8 @@
   :license  "MIT"
   :version "0.0.1"
   :serial t
-  :depends-on (#:cl-ppcre)
+  :depends-on (#:cl-ppcre
+               #:alexandria)
   :components ((:file "package")
                (:file "src/lisp-js")
                (:file "src/tokenizer")
