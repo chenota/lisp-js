@@ -140,6 +140,7 @@
                                     ;; If BOOLEAN token, convert value to boolean
                                     (:BOOLEAN (cons `(,token ,(token-str-to-bool string-match)) acc))
                                     ;; If STRING token, get rid of quotes at first and last character
+                                    ;; Basically reverses the string a couple of times and takes off first character
                                     (:STRING (cons `(,token ,(coerce (cdr (reverse (cdr (reverse (coerce string-match 'list))))) 'string)) acc))
                                     ;; Otherwise, keep original value
                                     (t (cons new acc)))))
