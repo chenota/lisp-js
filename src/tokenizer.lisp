@@ -13,6 +13,9 @@
             '(("//.*\\n" nil)
               ;; Printing
               ("console.log" :PRINT)
+              ;; Strings
+              ("(\\x22).*(\\x22)" :STRING)
+              ("(\\x27).*(\\x27)" :STRING)
               ;; Grouping operators
               ("\\(" :LPAREN)
               ("\\)" :RPAREN)
@@ -133,9 +136,11 @@
                                     ;; If NIL token, don't keep
                                     ('nil acc)
                                     ;; If NUMBER token, convert value to number
-                                    (:NUMBER (cons `(,token ,(str-to-num string-match)) acc))
+                                    (:NUMBER (cons `(,token ,(token-str-to-num string-match)) acc))
                                     ;; If BOOLEAN token, convert value to boolean
                                     (:BOOLEAN (cons `(,token ,(token-str-to-bool string-match)) acc))
+                                    ;; If STRING token, get rid of quotes at first and last character
+                                    (:STRING (cons `(,token ,(coerce (cdr (reverse (cdr (reverse (coerce string-match 'list))))) 'string)) acc))
                                     ;; Otherwise, keep original value
                                     (t (cons new acc)))))
                         tokens
