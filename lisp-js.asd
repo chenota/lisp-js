@@ -7,4 +7,4 @@
   :version "0.0.1"
   :serial t
   :components ((:file "package")
-               (:file "lisp-js")))
+               (:file "src/lisp-js")))
