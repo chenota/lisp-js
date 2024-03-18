@@ -12,14 +12,15 @@ The lexer converts a string into a list of tokens that will be used by the parse
 
 ### Parser
 
-The parser is the next major component of this project I have to complete. I plan on implementing a Pratt parser, but haven't worked out the specifics yet.
+I've implemented a Pratt parser that can successfully parse JS-based arithmetic expressons. Next, I will start to add non-arithmetic functionality like lists, functions, and objects.
 
-The parser will be based on the following context-free grammar (will be updated as I add more functionality):
+The parser will be loosely based on the following context-free grammar (will be updated as I add more functionality and work through problems):
 
 ```
 Program    -> Stmtlist $
 Stmtlist   -> Stmt; Stmtlist
            |  Stmt newline Stmtlist
+           |  Stmt
 Stmt       -> AssignStmt
            |  Expr
 AssignStmt -> identifier = Expr
@@ -83,10 +84,13 @@ This project is being developed on Ubuntu 20.04.6 LTS.
 
 ## Credits
 
-Packages in use:
+Quicklisp Packages:
 - Alexandria
 - CL-PPCRE
 
-Resources I used to figure out Pratt Parsers:
+Pratt Parsers:
 - https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 - https://www.youtube.com/watch?v=qyZQPJYvsGw
+
+JavaScript Precedence:
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
