@@ -27,20 +27,34 @@
               ("," :COMMA)
               (":" :COLON)
               ;; Arithmetic operators
+              ("\\*\\*" :POWER)
+              ("\\+\\+" :INCREMENT)
+              ("--" :DECREMENT)
               ("\\+" :PLUS)
               ("-" :MINUS)
               ("\\*" :TIMES)
-              ("/" :DIV-KW)
+              ("/" :DIV)
               ;; Logical operators
+              ("&&" :LOGAND)
+              ("\\|\\|" :LOGOR)
+              ;; Bitwise operators
+              ("&" :BITAND)
+              ("\\|" :BITOR)
+              ("\\^" :XOR)
+              ("~" :BITNOT)
+              ;; Comparison operators
               (">=" :GTE)
               (">" :GT)
               ("<=" :LTE)
               ("<" :LT)
               ("===" :STREQ)
               ("==" :EQ)
+              ("!==" :STRINEQ)
+              ("!=" :INEQ)
               ;; Boolean
               ("false" :BOOLEAN)
               ("true" :BOOLEAN)
+              ("!" :BANG)
               ;; Assignment
               ("=" :ASSIGN)
               ;; Functions
@@ -147,6 +161,7 @@
                                     (:STRING (cons `(,token ,(coerce (cdr (reverse (cdr (reverse (coerce string-match 'list))))) 'string)) acc))
                                     ;; Otherwise, keep original value
                                     (t (cons new acc)))))
-                        tokens
+                        ;; Add EOF token to end of token stream
+                        (cons '(:EOF nil) tokens)
                         :initial-value nil)
                     start-idx))))

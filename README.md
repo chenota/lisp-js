@@ -12,7 +12,44 @@ The lexer converts a string into a list of tokens that will be used by the parse
 
 ### Parser
 
-The parser is the next major component of this project I have to complete. I plan on implementing an LR parser (probably SLR), but haven't worked out the specifics yet.
+The parser is the next major component of this project I have to complete. I plan on implementing a Pratt parser, but haven't worked out the specifics yet.
+
+The parser will be based on the following context-free grammar (will be updated as I add more functionality):
+
+```
+Program    -> Stmtlist $
+Stmtlist   -> Stmt; Stmtlist
+           |  Stmt newline Stmtlist
+Stmt       -> AssignStmt
+           |  Expr
+AssignStmt -> identifier = Expr
+Expr       -> BopExpr
+           |  UopExpr
+           |  FuncExpr
+           |  CallExpr
+           |  ObjExpr
+           |  AccessExpr
+           |  IdentExpr
+           |  Value
+BopExpr    -> Expr Bop Expr
+UopExpr    -> Uop Expr
+FuncExpr   -> function ( Identlist ) { Stmtlist }
+           |  function identifier ( Identlist ) { Stmtlist }
+           |  ( Identlist ) => { Stmtlist }
+CallExpr   -> identifier ( Exprlist )
+ObjExpr    -> { Fieldlist }
+AccessExpr -> Expr . identifier
+IdentExpr  -> identifier
+Value      -> number
+           |  string
+           |  boolean
+           |  undefined
+Identlist  -> identifier , Identlist
+           |  identifier
+Fieldlist  -> Field , Fieldlist
+           |  Field
+Field      -> identifier : Expr
+```
 
 ### Evaluator
 

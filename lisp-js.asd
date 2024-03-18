@@ -11,4 +11,6 @@
   :components ((:file "package")
                (:file "src/lisp-js")
                (:file "src/tokenizer")
-               (:file "src/js-convert")))
+               (:file "src/js-convert")
+               (:file "src/pratt-parser")
+               (:file "src/pratt-parselets")))
