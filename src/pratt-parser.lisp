@@ -33,31 +33,27 @@
                         ;; Get left and right binding power of the op
                         (multiple-value-bind
                             (l-bp r-bp)
-                            (infix-binding-power (first op))
+                            (infix-binding-power op)
                             (progn 
                                 ;; If left binding power of op is less than minimum binding power,
                                 ;; break loop
                                 (if (< l-bp min-bp) (loop-finish) nil)
-                                ;; Advance the token stream to "bump past" the operator
-                                (setq token-stream (cdr token-stream))
-                                ;; Parse the right-hand side of the current operator
+                                ;; Call the left denotation of the current operator
                                 ;; this will also change the token stream, so need to capture
                                 ;; the new token stream as well as the parsed right side
                                 (multiple-value-bind
-                                    (right new-token-stream)
-                                    (expr-bp token-stream r-bp)
+                                    (new-left new-token-stream)
+                                    (funcall (left-denotations (first token-stream)) token-stream left)
                                     (progn 
-                                        ;; Update the token stream
-                                        (setq token-stream new-token-stream)
-                                        ;; Update our left side to include parsed right side
-                                        (setq left `(:BopExpr ,left ,(first op) ,right)))))))))
+                                        (setq left new-left)
+                                        (setq token-stream new-token-stream))))))))
             ;; Finally, return left and updated token stream
             (values left token-stream))))
 
 ;; Binding power for infix operations
 ;; returns (values left-bp right-bp) for each infix operator
-(defun infix-binding-power (operator)
-    (alexandria:switch (operator :test 'eq)
+(defun infix-binding-power (token)
+    (alexandria:switch ((first token) :test 'eq)
         (:PLUS (values 1 2))
         (:MINUS (values 1 2))
         (:TIMES (values 3 4))

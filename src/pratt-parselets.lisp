@@ -2,41 +2,28 @@
 
 (in-package #:lisp-js)
 
-;; Parselet for number tokens
-(defun parse-number (token-stream)
-    (destructuring-bind 
-        (_ token-value)
-        (first token-stream)
-        ;; Return new NumVal and token stream
-        ;; to the right of this operation
-        (values 
-            `(:NumVal ,token-value)
-            (cdr token-stream))))
+;; Return the value identifier associated with each token type
+(defun get-primitive (token)
+    (alexandria:switch ((first token) :test 'eq)
+        (:NUMBER :NumVal)
+        (:BOOLEAN :BoolVal)
+        (:STRING :StrVal)))
 
-;; Parselet for boolean tokens
-(defun parse-bool (token-stream)
-    (destructuring-bind 
-        (_ token-value)
-        (first token-stream)
-        ;; Return new BoolVal and token stream
-        ;; to the right of this operation
-        (values 
-            `(:BoolVal ,token-value)
-            (cdr token-stream))))
+;; Parse a primitive value
+(defun parse-primitive (token-stream)
+    ;; Return new XVal and token stream
+    ;; to the right of this operation
+    (values 
+        `(,(get-primitive (first token-stream)) ,(second (first token-stream)))
+        (cdr token-stream)))
 
-;; Parselet for string tokens
-(defun parse-str (token-stream)
-    (destructuring-bind 
-        (_ token-value)
-        (first token-stream)
-        ;; Return new StrVal and token stream
-        ;; to the right of this operation
-        (values 
-            `(:StrVal ,token-value)
-            (cdr token-stream))))
+;; Return the Uop identifier associated with each operator
+(defun get-uop (token)
+    (alexandria:switch ((first token) :test 'eq)
+        (:MINUS :NegUop)))
 
 ;; Parselet for infix negative
-(defun parse-prefix-negative (token-stream)
+(defun parse-prefix-operator (token-stream)
     ;; Get binding power of prefix operator
     (multiple-value-bind 
         (_ r-bp)
@@ -50,20 +37,48 @@
             (expr-bp (cdr token-stream) r-bp)
             ;; Return new token stream and parsed infix operator
             (values
-                `(:NegUop ,right)
+                `(,(get-uop (first token-stream)) ,right)
                 new-token-stream))))
 
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
-        (:NUMBER 'parse-number)
-        (:BOOLEAN 'parse-bool)
-        (:STRING 'parse-str)
-        (:MINUS 'parse-prefix-negative)))
+        (:NUMBER 'parse-primitive)
+        (:BOOLEAN 'parse-primitive)
+        (:STRING 'parse-primitive)
+        (:MINUS 'parse-prefix-operator)))
 
-(defun parse-infix-plus (token-stream left)
-    )
+;; Return the Bop identifier associated with each token type
+(defun get-bop (token)
+    (alexandria:switch ((first token) :test 'eq)
+        (:PLUS :PlusBop)
+        (:MINUS :MinusBop)
+        (:TIMES :TimesBop)
+        (:DIV :DivBop)
+        (:POWER :PowBop)))
 
+;; Generic parse infix operator function
+(defun parse-infix-operator (token-stream left)
+    ;; Get binding powers of infix operator
+    (multiple-value-bind 
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of operator
+        (multiple-value-bind
+            (right new-token-stream)
+            ;; Token stream is advanced during this function call,
+            ;; no need to advance it separately
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new token stream and parsed infix operator
+            (values
+                `(:BopExpr ,left ,(get-bop (first token-stream)) ,right)
+                new-token-stream))))
+
+;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
-        (:PLUS 'parse-infix-plus)))
+        (:PLUS 'parse-infix-operator)
+        (:MINUS 'parse-infix-operator)
+        (:TIMES 'parse-infix-operator)
+        (:DIV 'parse-infix-operator)
+        (:POWER 'parse-infix-operator)))
