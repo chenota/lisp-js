@@ -42,7 +42,7 @@
               ("&&=" :ASLOGAND)
               ("\\|\\|=" :ASLOGOR)
               ;; Ternary operator
-              ("?" :TERNARY)
+              ("\\?" :TERNARY)
               ;; Arithmetic operators
               ("%" :MOD)
               ("\\*\\*" :POWER)

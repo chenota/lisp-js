@@ -40,13 +40,33 @@
                 `(,(get-uop (first token-stream)) ,right)
                 new-token-stream))))
 
+(defun parse-parens (token-stream)
+    ;; Parse the stream after the opening paren
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Reset binding power back to zero then evaluate
+        (expr-bp (cdr token-stream) 1)
+        ;; Check for errors
+        (progn 
+            (if 
+                (not (eq (first (first new-token-stream)) :RPAREN))
+                (error "Parsing Error: No closing paren!")
+                nil)
+            ;; Return parsed expr, bump past rparen in new token stream
+            (values 
+                right
+                (cdr new-token-stream)))
+    ))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
         (:NUMBER 'parse-primitive)
         (:BOOLEAN 'parse-primitive)
         (:STRING 'parse-primitive)
-        (:MINUS 'parse-prefix-operator)))
+        (:MINUS 'parse-prefix-operator)
+        (:LPAREN 'parse-parens)
+        (t nil)))
 
 ;; Return the Bop identifier associated with each token type
 (defun get-bop (token)
@@ -55,7 +75,8 @@
         (:MINUS :MinusBop)
         (:TIMES :TimesBop)
         (:DIV :DivBop)
-        (:POWER :PowBop)))
+        (:POWER :PowBop)
+        (t nil)))
 
 ;; Generic parse infix operator function
 (defun parse-infix-operator (token-stream left)
@@ -81,4 +102,5 @@
         (:MINUS 'parse-infix-operator)
         (:TIMES 'parse-infix-operator)
         (:DIV 'parse-infix-operator)
-        (:POWER 'parse-infix-operator)))
+        (:POWER 'parse-infix-operator)
+        (t nil)))
