@@ -5,7 +5,7 @@
 ;; Define scanners for tokens
 (defparameter *js-token-scanners*
     ;; List of patterns and what the resultant token should be.
-    ;; Precedence is given to tokens higher up on the list.\
+    ;; Precedence is given to tokens higher up on the list.
     ;; Format: (TOKEN-PATTERN TOKEN-NAME)
     (let 
         ((tokens 
@@ -36,7 +36,8 @@
               (">" :GT)
               ("<=" :LTE)
               ("<" :LT)
-              ("===" :EQ)
+              ("===" :STREQ)
+              ("==" :EQ)
               ;; Boolean
               ("false" :BOOLEAN)
               ("true" :BOOLEAN)
