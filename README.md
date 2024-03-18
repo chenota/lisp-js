@@ -86,3 +86,7 @@ This project is being developed on Ubuntu 20.04.6 LTS.
 Packages in use:
 - Alexandria
 - CL-PPCRE
+
+Resources I used to figure out Pratt Parsers:
+- https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
+- https://www.youtube.com/watch?v=qyZQPJYvsGw
