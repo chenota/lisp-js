@@ -26,7 +26,25 @@
               ;; Delimiters
               ("," :COMMA)
               (":" :COLON)
+              ;; Assignment
+              ("\\+=" :ASPLUS)
+              ("-=" :ASMINUS)
+              ("\\*\\*=" :ASEXPONENT)
+              ("\\*=" :ASTIMES)
+              ("/=" :ASDIV)
+              ("%=" :ASMOD)
+              ("<<=" :ASLSHIFT)
+              (">>=" :ASRSHIFT)
+              (">>>=" :ASURSHIFT)
+              ("&=" :ASBITAND)
+              ("\\^=" :ASXOR)
+              ("\\|=" :ASBITOR)
+              ("&&=" :ASLOGAND)
+              ("\\|\\|=" :ASLOGOR)
+              ;; Ternary operator
+              ("?" :TERNARY)
               ;; Arithmetic operators
+              ("%" :MOD)
               ("\\*\\*" :POWER)
               ("\\+\\+" :INCREMENT)
               ("--" :DECREMENT)
@@ -42,6 +60,9 @@
               ("\\|" :BITOR)
               ("\\^" :XOR)
               ("~" :BITNOT)
+              (">>>" :URSHIFT)
+              ("<<" :LSHIFT)
+              (">>" :RSHIFT)
               ;; Comparison operators
               (">=" :GTE)
               (">" :GT)
@@ -55,11 +76,11 @@
               ("false" :BOOLEAN)
               ("true" :BOOLEAN)
               ("!" :BANG)
-              ;; Assignment
-              ("=" :ASSIGN)
               ;; Functions
               ("function" :FUNCTION)
               ("=>" :ARROW)
+              ;; Assignment
+              ("=" :ASSIGN)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

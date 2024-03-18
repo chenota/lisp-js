@@ -54,11 +54,56 @@
 ;; returns (values left-bp right-bp) for each infix operator
 (defun infix-binding-power (token)
     (alexandria:switch ((first token) :test 'eq)
-        (:PLUS (values 1 2))
-        (:MINUS (values 1 2))
-        (:TIMES (values 3 4))
-        (:DIV (values 3 4))
-        (:POWER (values 8 7))
+        ;; Additive
+        (:PLUS (values 50 51))
+        (:MINUS (values 50 51))
+        ;; Multiplicative
+        (:TIMES (values 55 56))
+        (:DIV (values 55 56))
+        ;; Exponentiation (right associative)
+        (:POWER (values 60 61))
+        ;; Bit shift operators
+        (:LSHIFT (45 46))
+        (:RSHIFT (45 46))
+        (:URSHIFT (45 46))
+        ;; Relational operators
+        (:LT (40 41))
+        (:LTE (40 41))
+        (:GT (40 41))
+        (:GTE (40 41))
+        ;; Equality operators
+        (:EQ (35 36))
+        (:STREQ (35 36))
+        (:INEQ (35 36))
+        (:STRINEQ (35 36))
+        ;; Bitwise AND
+        (:BITAND (30 31))
+        ;; Bitwise XOR
+        (:XOR (28 29))
+        ;; Bitwise OR
+        (:BITOR (25 26))
+        ;; Logical AND
+        (:LOGAND (22 23))
+        ;; Logical OR
+        (:LOGOR (20 21))
+        ;; Assignment
+        (:ASSIGN (15 16))
+        (:ASPLUS (15 16))
+        (:ASMINUS (15 16))
+        (:ASEXPONENT (15 16))
+        (:ASTIMES (15 16))
+        (:ASDIV (15 16))
+        (:ASMOD (15 16))
+        (:ASLSHIFT (15 16))
+        (:ASRSHIFT (15 16))
+        (:ASURSHIFT (15 16))
+        (:ASBITAND (15 16))
+        (:ASXOR (15 16))
+        (:ASBITOR (15 16))
+        (:ASLOGAND (15 16))
+        (:ASLOGOR (15 16))
+        (:TERNARY (15 16))
+        (:ARROW (15 16))
         (t (values nil nil))))
 
 
@@ -67,6 +112,22 @@
 ;; Note: prefix operators only have a right binding power, since
 ;; Nothing to the left
 (defun prefix-binding-power (token)
-    (alexandria:switch ((first token) :test 'eq)
-        (:MINUS (values nil 6))
-        (t (values nil nil))))
+    (let
+        ((prefix-power 65))
+        (alexandria:switch ((first token) :test 'eq)
+            (:INCREMENT (values nil prefix-power))
+            (:DECREMENT (values nil prefix-power))
+            (:BANG (values nil prefix-power))
+            (:BITNOT (values nil prefix-power))
+            (:PLUS (values nil prefix-power))
+            (:MINUS (values nil prefix-power))
+            (t (values nil nil)))))
+
+;; Binding power for postfix operations
+(defun postfix-binding-power (token)
+    (let 
+        ((postfix-power 70))
+        (alexandria:switch ((first token) :test 'eq)
+            (:INCREMENT (values nil postfix-power))
+            (:DECREMENT (values nil postfix-power))
+            (t (values nil nil)))))
