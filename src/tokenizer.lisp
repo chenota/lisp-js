@@ -50,6 +50,8 @@
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers
               ("((([0-9]+)(\\.?)([0-9]*))|(\\.[0-9]+))(e(\\+?|-)[0-9]+)?" :NUMBER)
+              ;; Period
+              ("\\." :DOT)
               ;; Whitespace
               ("\\s+" nil))))
         ;; Loop through list and compile a regular expression for each pattern
