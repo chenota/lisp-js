@@ -16,6 +16,8 @@
               ;; Strings
               ("(\\x22).*(\\x22)" :STRING)
               ("(\\x27).*(\\x27)" :STRING)
+              ;; Semicolon
+              (";" :SEMICOLON)
               ;; Grouping operators
               ("\\(" :LPAREN)
               ("\\)" :RPAREN)
@@ -81,8 +83,9 @@
               ("=>" :ARROW)
               ;; Assignment
               ("=" :ASSIGN)
-              ;; Return keyword
+              ;; Keywords
               ("return" :RETURN)
+              ("const" :CONST)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

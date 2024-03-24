@@ -7,7 +7,9 @@
     (alexandria:switch ((first token) :test 'eq)
         (:NUMBER :NumVal)
         (:BOOLEAN :BoolVal)
-        (:STRING :StrVal)))
+        (:STRING :StrVal)
+        (:IDENTIFIER :IdentVal)
+        (t (error (format nil "Error: Reached end of primitive map with token ~A~%" token)))))
 
 ;; Parse a primitive value
 (defun parse-primitive (token-stream)
@@ -20,7 +22,8 @@
 ;; Return the Uop identifier associated with each operator
 (defun get-uop (token)
     (alexandria:switch ((first token) :test 'eq)
-        (:MINUS :NegUop)))
+        (:MINUS :NegUop)
+        (t (error (format nil "Error: Reached end of uop map with token ~A~%" token)))))
 
 ;; Parselet for infix negative
 (defun parse-prefix-operator (token-stream)
@@ -87,10 +90,11 @@
         (:NUMBER 'parse-primitive)
         (:BOOLEAN 'parse-primitive)
         (:STRING 'parse-primitive)
+        (:IDENTIFIER 'parse-primitive)
         (:MINUS 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
         (:FUNCTION 'parse-function)
-        (t (error "Error: Reached end of null denotations map"))))
+        (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
 (defun get-bop (token)
@@ -100,6 +104,8 @@
         (:TIMES :TimesBop)
         (:DIV :DivBop)
         (:POWER :PowBop)
+        (:BITOR :BitOrBop)
+        (:BITAND :BitAndBop)
         (t nil)))
 
 ;; Generic parse infix operator function
@@ -119,6 +125,23 @@
                 `(:BopExpr ,left ,(get-bop (first token-stream)) ,right)
                 new-token-stream))))
 
+(defun parse-semicolon (token-stream left)
+    ;; Get binding powers of semicolon
+    (multiple-value-bind 
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of semicolon
+        (multiple-value-bind
+            (right new-token-stream)
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new token stream and statement wrapper
+            (values
+                (if 
+                    (eq (car right) :STMTLIST)
+                    `(:STMTLIST (,left ,@(car (cdr right))))
+                    `(:STMTLIST (,left ,right)))
+                new-token-stream))))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -127,4 +150,7 @@
         (:TIMES 'parse-infix-operator)
         (:DIV 'parse-infix-operator)
         (:POWER 'parse-infix-operator)
-        (t nil)))
+        (:BITOR 'parse-infix-operator)
+        (:BITAND 'parse-infix-operator)
+        (:SEMICOLON 'parse-semicolon)
+        (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
