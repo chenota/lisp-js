@@ -69,7 +69,11 @@ This project is formulated as an ASDF-based system (i.e. package) for Common Lis
 ```
 or any other location that stores Quicklisp systems.
 
-So far, this system doesn't have any external functions, so to run it you have to load and enter the system (in SBCL) like so:
+So far, this system doesn't have any external functions, so to run it you can load the system via the included Makefile
+```
+make load
+```
+or you can manually load the system in SBCL like so:
 
 ```
 * (ql:quickload :lisp-js)
