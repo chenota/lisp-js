@@ -58,6 +58,29 @@
                 (cdr new-token-stream)))
     ))
 
+(defun parse-function (token-stream)
+    (progn 
+        ;; Advance token stream, don't really care about function keyword
+        (setq token-stream (cdr token-stream))
+        ;; Check for function name, which is an ident
+        (let  
+            ((fn-name 
+                (if 
+                    (eq (caar token-stream) :IDENTIFIER)
+                    ;; If next token is identifier, then advance token stream and extract token value
+                    (progn 
+                        (setq token-stream (cdr token-stream)) 
+                        (cadr token-stream))
+                    ;; Otherwise, set function name to nil
+                    nil)))
+            ;; Check that lparen is next token
+            (if  
+                (eq (caar token-stream) :LPAREN)
+                ;; If lparen is next, keep parsing
+                (error "It worked! (so far...)")
+                ;; Otherwise, throw error
+                (error "Error: Expected LPAREN after function keyword!")))))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -66,7 +89,8 @@
         (:STRING 'parse-primitive)
         (:MINUS 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
-        (t nil)))
+        (:FUNCTION 'parse-function)
+        (t (error "Error: Reached end of null denotations map"))))
 
 ;; Return the Bop identifier associated with each token type
 (defun get-bop (token)
