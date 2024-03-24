@@ -105,13 +105,15 @@
         (:TERNARY (values 16 15))
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
-        (:LPAREN (values 0 0))
-        (:RPAREN (values 0 0))
-        (:LBRACKET (values 0 0))
-        (:RBRACKET (values 0 0))
+        (:LPAREN (values 1 1))
+        (:RPAREN (values 1 1))
+        (:LBRACKET (values 1 1))
+        (:RBRACKET (values 1 1))
         ;; Semicolon
-        (:SEMICOLON (values 2 1))
-        (t (values nil nil))))
+        (:SEMICOLON (values 1 0))
+        ;; Comma
+        (:COMMA (values 4 3))
+        (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
 
 
 ;; Binding power for prefix operations
@@ -128,7 +130,7 @@
             (:BITNOT (values nil prefix-power))
             (:PLUS (values nil prefix-power))
             (:MINUS (values nil prefix-power))
-            (t (values nil nil)))))
+            (t (error (format nil "Error: Reached end of prefix bp map with token ~A~%" token))))))
 
 ;; Binding power for postfix operations
 (defun postfix-binding-power (token)
@@ -137,4 +139,4 @@
         (alexandria:switch ((first token) :test 'eq)
             (:INCREMENT (values nil postfix-power))
             (:DECREMENT (values nil postfix-power))
-            (t (values nil nil)))))
+            (t (error (format nil "Error: Reached end of postfix bp map with token ~A~%" token))))))

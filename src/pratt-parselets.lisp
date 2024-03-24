@@ -48,7 +48,7 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Reset binding power back to one then evaluate
-        (expr-bp (cdr token-stream) 1)
+        (expr-bp (cdr token-stream) 2)
         ;; Check for errors
         (progn 
             (if 
@@ -70,26 +70,46 @@
             ((fn-name 
                 (if 
                     (eq (caar token-stream) :IDENTIFIER)
-                    ;; If next token is identifier, then advance token stream and extract token value
-                    (progn 
-                        (setq token-stream (cdr token-stream)) 
-                        (cadr token-stream))
+                    ;; If next token is identifier, then extract token value and advance token stream
+                    (let 
+                        ;; Have to store name before advance past it
+                        ((temp-name (car token-stream)))
+                        (progn 
+                            (setq token-stream (cdr token-stream))
+                            temp-name))
                     ;; Otherwise, set function name to nil
                     nil)))
             ;; Check that lparen is next token
             (if  
                 (eq (caar token-stream) :LPAREN)
-                ;; If lparen is next, keep parsing
-                (error "It worked! (so far...)")
+                ;; If lparen is next, keep parsing right side to get parameters
+                (multiple-value-bind 
+                    (params new-token-stream)
+                    ;; Reset binding power back to one then evaluate
+                    (expr-bp token-stream 2)
+                    ;; Check that next token is a bracket
+                    (if  
+                        (eq (caar new-token-stream) :LBRACKET)
+                        ;; If so, evaluate to get block
+                        (multiple-value-bind  
+                            (block newer-token-stream)
+                            (expr-bp new-token-stream 2)
+                            ;; Return funcexpr and token stream
+                            (values 
+                                `(:FuncExpr ,fn-name ,params ,block)
+                                newer-token-stream))
+                        ;; Otherwise, throw error
+                        (error "Error: Expected LBRACKET after function parameters"))
+                    )
                 ;; Otherwise, throw error
-                (error "Error: Expected LPAREN after function keyword!")))))
+                (error "Error: Expected LPAREN after function keyword")))))
 
 (defun parse-sqbracket (token-stream)
      ;; Parse the stream after the opening bracket
     (multiple-value-bind 
         (right new-token-stream)
         ;; Reset binding power back to one then evaluate
-        (expr-bp (cdr token-stream) 1)
+        (expr-bp (cdr token-stream) 2)
         ;; Check for errors
         (progn 
             (if 
@@ -161,6 +181,23 @@
                     `(:STMTLIST (,left ,right)))
                 new-token-stream))))
 
+(defun parse-comma (token-stream left)
+    ;; Get binding powers of comma
+    (multiple-value-bind 
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of comma
+        (multiple-value-bind
+            (right new-token-stream)
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new token stream and comma wrapper
+            (values
+                (if 
+                    (eq (car right) :COMMALIST)
+                    `(:COMMALIST (,left ,@(car (cdr right))))
+                    `(:COMMALIST (,left ,right)))
+                new-token-stream))))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -172,4 +209,5 @@
         (:BITOR 'parse-infix-operator)
         (:BITAND 'parse-infix-operator)
         (:SEMICOLON 'parse-semicolon)
+        (:COMMA 'parse-comma)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
