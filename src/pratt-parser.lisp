@@ -104,9 +104,11 @@
         (:ASLOGOR (values 16 15))
         (:TERNARY (values 16 15))
         (:ARROW (values 16 15))
-        ;; Parenthesis
+        ;; Parenthesis/brackets
         (:LPAREN (values 0 0))
         (:RPAREN (values 0 0))
+        (:LBRACKET (values 0 0))
+        (:RBRACKET (values 0 0))
         ;; Semicolon
         (:SEMICOLON (values 2 1))
         (t (values nil nil))))

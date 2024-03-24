@@ -47,7 +47,7 @@
     ;; Parse the stream after the opening paren
     (multiple-value-bind 
         (right new-token-stream)
-        ;; Reset binding power back to zero then evaluate
+        ;; Reset binding power back to one then evaluate
         (expr-bp (cdr token-stream) 1)
         ;; Check for errors
         (progn 
@@ -84,6 +84,24 @@
                 ;; Otherwise, throw error
                 (error "Error: Expected LPAREN after function keyword!")))))
 
+(defun parse-sqbracket (token-stream)
+     ;; Parse the stream after the opening bracket
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Reset binding power back to one then evaluate
+        (expr-bp (cdr token-stream) 1)
+        ;; Check for errors
+        (progn 
+            (if 
+                (not (eq (caar new-token-stream) :RBRACKET))
+                (error "Parsing Error: No closing bracket!")
+                nil)
+            ;; Return parsed expr, bump past rbracket in new token stream
+            (values 
+                `(:Block ,right)
+                (cdr new-token-stream)))
+    ))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -93,6 +111,7 @@
         (:IDENTIFIER 'parse-primitive)
         (:MINUS 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
+        (:LBRACKET 'parse-sqbracket)
         (:FUNCTION 'parse-function)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
