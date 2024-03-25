@@ -19,6 +19,13 @@
         `(,(get-primitive (first token-stream)) ,(second (first token-stream)))
         (cdr token-stream)))
 
+(defun parse-undefined (token-stream)
+    ;; Return undefined and token stream
+    ;; to the right of this operation
+    (values 
+        `(:UndefVal nil)
+        (cdr token-stream)))
+
 ;; Return the Uop identifier associated with each operator
 (defun get-uop (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -161,13 +168,15 @@
         (expr-bp (cdr token-stream) 2)
         ;; A const must be associated with a generic assignment OR an identifier
         (alexandria:switch ((car right) :test 'eq)
+            ;; If let x = y, do same thing as const
             (:GENERICASSIGN
                 (values 
                     `(:AssignStmt nil ,@(cdr right))
                 new-token-stream))
+            ;; If just let x;, assign undefined to x
             (:IDENTVAL
                 (values 
-                    `(:AssignStmt nil ,right nil)
+                    `(:AssignStmt nil ,right (:UndefVal nil))
                 new-token-stream))
             ;;(t (error "Error: A let must be followed by a generic assign or an identifier"))
             (t (error (format nil "~A~%" right))))))
@@ -179,6 +188,7 @@
         (:BOOLEAN 'parse-primitive)
         (:STRING 'parse-primitive)
         (:IDENTIFIER 'parse-primitive)
+        (:UNDEFINED 'parse-undefined)
         (:MINUS 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
         (:LBRACKET 'parse-bracket)
