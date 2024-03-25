@@ -159,12 +159,18 @@
         (right new-token-stream)
         ;; Set BP to two so stops at semicolon
         (expr-bp (cdr token-stream) 2)
-        ;; A const must be associated with a generic assignment
-        (if (eq (car right) :GENERICASSIGN)
-            (values 
-                `(:AssignStmt nil ,@(cdr right))
-                new-token-stream)
-            (error "Error: A let must be followed by a generic assign!"))))
+        ;; A const must be associated with a generic assignment OR an identifier
+        (alexandria:switch ((car right) :test 'eq)
+            (:GENERICASSIGN
+                (values 
+                    `(:AssignStmt nil ,@(cdr right))
+                new-token-stream))
+            (:IDENTVAL
+                (values 
+                    `(:AssignStmt nil ,right nil)
+                new-token-stream))
+            ;;(t (error "Error: A let must be followed by a generic assign or an identifier"))
+            (t (error (format nil "~A~%" right))))))
 
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
