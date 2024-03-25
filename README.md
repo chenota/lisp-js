@@ -12,7 +12,7 @@ The lexer converts a string into a list of tokens that will be used by the parse
 
 ### Parser
 
-I've implemented a Pratt parser that can successfully parse JS-based arithmetic expressons. Next, I will start to add non-arithmetic functionality like lists, functions, and objects.
+I've implemented a Pratt parser that can successfully parse JS-based arithmetic expressons. So far, I have made good progress on implementing non-arithmetic functionality like lists, functions, objects, if-else, let/const, etc.
 
 ### Evaluator
 
