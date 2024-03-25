@@ -104,7 +104,7 @@
                 ;; Otherwise, throw error
                 (error "Error: Expected LPAREN after function keyword")))))
 
-(defun parse-sqbracket (token-stream)
+(defun parse-bracket (token-stream)
      ;; Parse the stream after the opening bracket
     (multiple-value-bind 
         (right new-token-stream)
@@ -122,6 +122,24 @@
                 (cdr new-token-stream)))
     ))
 
+(defun parse-list (token-stream)
+    ;; Parse the stream after the opening bracket
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Reset binding power back to two then evaluate
+        (expr-bp (cdr token-stream) 2)
+        ;; Check for errors
+        (progn 
+            (if 
+                (not (eq (first (first new-token-stream)) :RSQBRACKET))
+                (error "Parsing Error: No closing paren!")
+                nil)
+            ;; Return parsed expr, bump past rparen in new token stream
+            (values 
+                `(:ListExpr ,right)
+                (cdr new-token-stream)))
+    ))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -131,7 +149,8 @@
         (:IDENTIFIER 'parse-primitive)
         (:MINUS 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
-        (:LBRACKET 'parse-sqbracket)
+        (:LBRACKET 'parse-bracket)
+        (:LSQBRACKET 'parse-list)
         (:FUNCTION 'parse-function)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
@@ -145,7 +164,9 @@
         (:POWER :PowBop)
         (:BITOR :BitOrBop)
         (:BITAND :BitAndBop)
-        (t nil)))
+        (:LOGOR :LogOrBop)
+        (:LOGAND :LogAndBop)
+        (t (error (format nil "Error: Reached end of infix operators map with token ~A~%" token)))))
 
 ;; Generic parse infix operator function
 (defun parse-infix-operator (token-stream left)
@@ -198,6 +219,17 @@
                     `(:COMMALIST (,left ,right)))
                 new-token-stream))))
 
+(defun parse-index (token-stream left)
+    (multiple-value-bind
+        (right new-token-stream)
+        ;; Evaluate bracket as if it was a null denotation
+        (expr-bp token-stream 2)
+        ;; Going to return a listexpr, basically just rename it to idxexpr
+        (values 
+            `(:IdxExpr ,left ,(cadr right))
+            new-token-stream)
+        ))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -206,8 +238,11 @@
         (:TIMES 'parse-infix-operator)
         (:DIV 'parse-infix-operator)
         (:POWER 'parse-infix-operator)
+        (:LOGOR 'parse-infix-operator)
+        (:LOGAND 'parse-infix-operator)
         (:BITOR 'parse-infix-operator)
         (:BITAND 'parse-infix-operator)
         (:SEMICOLON 'parse-semicolon)
         (:COMMA 'parse-comma)
+        (:LSQBRACKET 'parse-index)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))

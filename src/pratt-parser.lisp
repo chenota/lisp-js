@@ -109,6 +109,8 @@
         (:RPAREN (values 1 1))
         (:LBRACKET (values 1 1))
         (:RBRACKET (values 1 1))
+        (:LSQBRACKET (values 1 1))
+        (:RSQBRACKET (values 1 1))
         ;; Semicolon
         (:SEMICOLON (values 1 0))
         ;; Comma
