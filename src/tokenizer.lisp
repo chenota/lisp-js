@@ -86,6 +86,7 @@
               ;; Keywords
               ("return" :RETURN)
               ("const" :CONST)
+              ("let" :LET)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

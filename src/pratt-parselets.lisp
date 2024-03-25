@@ -140,6 +140,32 @@
                 (cdr new-token-stream)))
     ))
 
+(defun parse-const (token-stream)
+    ;; Parse the stream after the const keyword
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Set BP to two so stops at semicolon
+        (expr-bp (cdr token-stream) 2)
+        ;; A const must be associated with a generic assignment
+        (if (eq (car right) :GENERICASSIGN)
+            (values 
+                `(:AssignStmt t ,@(cdr right))
+                new-token-stream)
+            (error "Error: A const must be followed by a generic assign!"))))
+
+(defun parse-let (token-stream)
+    ;; Parse the stream after the const keyword
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Set BP to two so stops at semicolon
+        (expr-bp (cdr token-stream) 2)
+        ;; A const must be associated with a generic assignment
+        (if (eq (car right) :GENERICASSIGN)
+            (values 
+                `(:AssignStmt nil ,@(cdr right))
+                new-token-stream)
+            (error "Error: A let must be followed by a generic assign!"))))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -152,6 +178,8 @@
         (:LBRACKET 'parse-bracket)
         (:LSQBRACKET 'parse-list)
         (:FUNCTION 'parse-function)
+        (:CONST 'parse-const)
+        (:LET 'parse-let)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
@@ -182,7 +210,7 @@
             (expr-bp (cdr token-stream) r-bp)
             ;; Return new token stream and parsed infix operator
             (values
-                `(:BopExpr ,left ,(get-bop (first token-stream)) ,right)
+                `(:BopExpr ,(get-bop (first token-stream)) ,left ,right)
                 new-token-stream))))
 
 (defun parse-semicolon (token-stream left)
@@ -224,11 +252,33 @@
         (right new-token-stream)
         ;; Evaluate bracket as if it was a null denotation
         (expr-bp token-stream 2)
-        ;; Going to return a listexpr, basically just rename it to idxexpr
+        ;; Going to return a listexpr, basically just rename it to idxexpr and add left side
         (values 
             `(:IdxExpr ,left ,(cadr right))
-            new-token-stream)
-        ))
+            new-token-stream)))
+
+;; Return the assignment operator identifier associated with each token type
+(defun get-assign-op (token)
+    (alexandria:switch ((first token) :test 'eq)
+        (:ASSIGN :GenericAssign)
+        (t (error (format nil "Error: Reached end of infix operators map with token ~A~%" token)))))
+
+;; Generic parse assignment operator function
+(defun parse-assign-operator (token-stream left)
+    ;; Get binding powers of infix operator
+    (multiple-value-bind 
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of operator
+        (multiple-value-bind
+            (right new-token-stream)
+            ;; Token stream is advanced during this function call,
+            ;; no need to advance it separately
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new token stream and parsed infix operator
+            (values
+                `(,(get-assign-op (first token-stream)) ,left ,right)
+                new-token-stream))))
 
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
@@ -242,6 +292,7 @@
         (:LOGAND 'parse-infix-operator)
         (:BITOR 'parse-infix-operator)
         (:BITAND 'parse-infix-operator)
+        (:ASSIGN 'parse-assign-operator)
         (:SEMICOLON 'parse-semicolon)
         (:COMMA 'parse-comma)
         (:LSQBRACKET 'parse-index)
