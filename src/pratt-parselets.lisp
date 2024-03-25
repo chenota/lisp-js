@@ -53,22 +53,28 @@
                 new-token-stream))))
 
 (defun parse-parens (token-stream)
-    ;; Parse the stream after the opening paren
-    (multiple-value-bind 
-        (right new-token-stream)
-        ;; Reset binding power back to one then evaluate
-        (expr-bp (cdr token-stream) grouping-bp)
-        ;; Check for errors
-        (progn 
-            (if 
-                (not (eq (first (first new-token-stream)) :RPAREN))
-                (error "Parsing Error: No closing paren!")
-                nil)
-            ;; Return parsed expr, bump past rparen in new token stream
-            (values 
-                right
-                (cdr new-token-stream)))
-    ))
+    ;; Check if next token is a closing paren
+    (if  
+        (eq (caadr token-stream) :RPAREN)
+        ;; If so, return a UNIT value
+        (values 
+            '(:UNIT nil)
+            (cddr token-stream))
+        ;; Otherwise, parse the stream after the opening paren
+        (multiple-value-bind 
+            (right new-token-stream)
+            ;; Reset binding power back to one then evaluate
+            (expr-bp (cdr token-stream) grouping-bp)
+            ;; Check for errors
+            (progn 
+                (if 
+                    (not (eq (first (first new-token-stream)) :RPAREN))
+                    (error "Parsing Error: No closing paren!")
+                    nil)
+                ;; Return parsed expr, bump past rparen in new token stream
+                (values 
+                    right
+                    (cdr new-token-stream))))))
 
 (defun parse-function (token-stream)
     (progn 
