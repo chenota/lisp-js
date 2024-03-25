@@ -2,6 +2,8 @@
 
 (in-package #:lisp-js)
 
+(defparameter grouping-bp 5)
+
 ;; Return the value identifier associated with each token type
 (defun get-primitive (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -55,7 +57,7 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Reset binding power back to one then evaluate
-        (expr-bp (cdr token-stream) 2)
+        (expr-bp (cdr token-stream) grouping-bp)
         ;; Check for errors
         (progn 
             (if 
@@ -93,14 +95,14 @@
                 (multiple-value-bind 
                     (params new-token-stream)
                     ;; Reset binding power back to one then evaluate
-                    (expr-bp token-stream 2)
+                    (expr-bp token-stream grouping-bp)
                     ;; Check that next token is a bracket
                     (if  
                         (eq (caar new-token-stream) :LBRACKET)
                         ;; If so, evaluate to get block
                         (multiple-value-bind  
                             (block newer-token-stream)
-                            (expr-bp new-token-stream 2)
+                            (expr-bp new-token-stream grouping-bp)
                             ;; Return funcexpr and token stream
                             (values 
                                 `(:FuncExpr ,fn-name ,params ,block)
@@ -121,7 +123,7 @@
         (progn 
             (if 
                 (not (eq (caar new-token-stream) :RBRACKET))
-                (error "Parsing Error: No closing bracket!")
+                (error "No closing bracket!")
                 nil)
             ;; Return parsed expr, bump past rbracket in new token stream
             (values 
@@ -134,14 +136,14 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Reset binding power back to two then evaluate
-        (expr-bp (cdr token-stream) 2)
+        (expr-bp (cdr token-stream) grouping-bp)
         ;; Check for errors
         (progn 
             (if 
                 (not (eq (first (first new-token-stream)) :RSQBRACKET))
-                (error "Parsing Error: No closing paren!")
+                (error "Parsing Error: No closing square bracket!")
                 nil)
-            ;; Return parsed expr, bump past rparen in new token stream
+            ;; Return parsed expr, bump past r sq bracket in new token stream
             (values 
                 `(:ListExpr ,right)
                 (cdr new-token-stream)))
@@ -152,7 +154,7 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Set BP to two so stops at semicolon
-        (expr-bp (cdr token-stream) 2)
+        (expr-bp (cdr token-stream) grouping-bp)
         ;; A const must be associated with a generic assignment
         (if (eq (car right) :GENERICASSIGN)
             (values 
@@ -165,7 +167,7 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Set BP to two so stops at semicolon
-        (expr-bp (cdr token-stream) 2)
+        (expr-bp (cdr token-stream) grouping-bp)
         ;; A const must be associated with a generic assignment OR an identifier
         (alexandria:switch ((car right) :test 'eq)
             ;; If let x = y, do same thing as const
@@ -180,6 +182,17 @@
                 new-token-stream))
             ;;(t (error "Error: A let must be followed by a generic assign or an identifier"))
             (t (error (format nil "~A~%" right))))))
+
+(defun parse-return (token-stream)
+    ;; Parse the stream after the return keyword
+    (multiple-value-bind 
+        (right new-token-stream)
+        ;; Reset BP to two so stops at semicolon
+        (expr-bp (cdr token-stream) grouping-bp)
+        ;; Return a returnstmt with whatever is to the right
+        (values 
+            `(:ReturnStmt ,right)
+            new-token-stream)))
 
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
@@ -196,6 +209,7 @@
         (:FUNCTION 'parse-function)
         (:CONST 'parse-const)
         (:LET 'parse-let)
+        (:RETURN 'parse-return)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
@@ -267,7 +281,7 @@
     (multiple-value-bind
         (right new-token-stream)
         ;; Evaluate bracket as if it was a null denotation
-        (expr-bp token-stream 2)
+        (expr-bp token-stream grouping-bp)
         ;; Going to return a listexpr, basically just rename it to idxexpr and add left side
         (values 
             `(:IdxExpr ,left ,(cadr right))
