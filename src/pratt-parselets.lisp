@@ -316,6 +316,20 @@
                 `(,(get-assign-op (first token-stream)) ,left ,right)
                 new-token-stream))))
 
+(defun parse-arrow-func (token-stream left)
+    ;; Get binding powers of arrow
+    (multiple-value-bind 
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of arrow
+        (multiple-value-bind 
+            (right new-token-stream)
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new arrow func expression
+            (values 
+                `(:ArrowFuncExpr ,left ,right)
+                new-token-stream))))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -332,4 +346,5 @@
         (:SEMICOLON 'parse-semicolon)
         (:COMMA 'parse-comma)
         (:LSQBRACKET 'parse-index)
+        (:ARROW 'parse-arrow-func)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))

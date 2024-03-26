@@ -115,6 +115,8 @@
         (:SEMICOLON (values 3 2))
         ;; Comma
         (:COMMA (values 6 5))
+        ;; Arrow
+        (:ARROW (values 8 7))
         (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
 
 
