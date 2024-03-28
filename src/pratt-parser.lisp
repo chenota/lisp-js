@@ -106,19 +106,19 @@
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
         (:LPAREN (values 4 4))
-        (:RPAREN (values 4 4))
+        (:RPAREN (values 3 3))
         (:LBRACKET (values 1 1))
-        (:RBRACKET (values 1 1))
+        (:RBRACKET (values 0 0))
         (:LSQBRACKET (values 4 4))
-        (:RSQBRACKET (values 4 4))
+        (:RSQBRACKET (values 3 3))
         ;; Semicolon
         (:SEMICOLON (values 3 2))
         ;; Comma
-        (:COMMA (values 8 7))
+        (:COMMA (values 9 8))
         ;; Arrow
-        (:ARROW (values 10 9))
+        (:ARROW (values 11 10))
         ;; Colon
-        (:COLON (values 6 5))
+        (:COLON (values 7 6))
         (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
 
 

@@ -2,7 +2,7 @@
 
 (in-package #:lisp-js)
 
-(defparameter grouping-bp 5)
+(defparameter grouping-bp 4)
 
 ;; Return the value identifier associated with each token type
 (defun get-primitive (token)
@@ -68,7 +68,7 @@
             ;; Check for errors
             (progn 
                 (if 
-                    (not (eq (first (first new-token-stream)) :RPAREN))
+                    (not (eq (caar new-token-stream) :RPAREN))
                     (error "Parsing Error: No closing paren!")
                     nil)
                 ;; Return parsed expr, bump past rparen in new token stream
@@ -287,7 +287,7 @@
     (multiple-value-bind
         (right new-token-stream)
         ;; Evaluate bracket as if it was a null denotation
-        (expr-bp token-stream grouping-bp)
+        (parse-list token-stream)
         ;; Going to return a listexpr, basically just rename it to idxexpr and add left side
         (values 
             `(:IdxExpr ,left ,(cadr right))
