@@ -101,14 +101,14 @@
                 (multiple-value-bind 
                     (params new-token-stream)
                     ;; Reset binding power back to one then evaluate
-                    (expr-bp token-stream grouping-bp)
+                    (parse-parens token-stream)
                     ;; Check that next token is a bracket
                     (if  
                         (eq (caar new-token-stream) :LBRACKET)
                         ;; If so, evaluate to get block
                         (multiple-value-bind  
                             (block newer-token-stream)
-                            (expr-bp new-token-stream grouping-bp)
+                            (parse-bracket new-token-stream)
                             ;; Return funcexpr and token stream
                             (values 
                                 `(:FuncExpr ,fn-name ,params ,block)
@@ -293,6 +293,16 @@
             `(:IdxExpr ,left ,(cadr right))
             new-token-stream)))
 
+(defun parse-call (token-stream left)
+    (multiple-value-bind
+        (right new-token-stream)
+        ;; Evaluate parens as if it was a null denotation
+        (parse-parens token-stream)
+        ;; Make a call expr
+        (values 
+            `(:CallExpr ,left ,right)
+            new-token-stream)))
+
 ;; Return the assignment operator identifier associated with each token type
 (defun get-assign-op (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -360,6 +370,7 @@
         (:SEMICOLON 'parse-semicolon)
         (:COMMA 'parse-comma)
         (:LSQBRACKET 'parse-index)
+        (:LPAREN 'parse-call)
         (:ARROW 'parse-arrow-func)
         (:COLON 'parse-colon)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
