@@ -105,8 +105,8 @@
         (:TERNARY (values 16 15))
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
-        (:LPAREN (values 4 4))
-        (:RPAREN (values 3 3))
+        (:LPAREN (values 1 1))
+        (:RPAREN (values 0 0))
         (:LBRACKET (values 1 1))
         (:RBRACKET (values 0 0))
         (:LSQBRACKET (values 4 4))
