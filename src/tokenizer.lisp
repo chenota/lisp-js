@@ -88,6 +88,11 @@
               ("const" :CONST)
               ("let" :LET)
               ("undefined" :UNDEFINED)
+              ("for" :FOR)
+              ("while" :WHILE)
+              ("if" :IF)
+              ("else" :ELSE)
+              ("in" :IN)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers
