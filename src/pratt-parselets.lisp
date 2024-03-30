@@ -32,6 +32,11 @@
 (defun get-uop (token)
     (alexandria:switch ((first token) :test 'eq)
         (:MINUS :NegUop)
+        (:PLUS :PosUop)
+        (:BITNOT :BitNotUop)
+        (:BANG :BangUop)
+        (:INCREMENT :IncUop)
+        (:DECREMENT :DecUop)
         (t (error (format nil "Error: Reached end of uop map with token ~A~%" token)))))
 
 ;; Parselet for infix negative
@@ -209,6 +214,11 @@
         (:IDENTIFIER 'parse-primitive)
         (:UNDEFINED 'parse-undefined)
         (:MINUS 'parse-prefix-operator)
+        (:PLUS 'parse-prefix-operator)
+        (:BITNOT 'parse-prefix-operator)
+        (:BANG 'parse-prefix-operator)
+        (:INCREMENT 'parse-prefix-operator)
+        (:DECREMENT 'parse-prefix-operator)
         (:LPAREN 'parse-parens)
         (:LBRACKET 'parse-bracket)
         (:LSQBRACKET 'parse-list)
@@ -366,6 +376,17 @@
                 `(:ColonExpr ,left ,right)
                 new-token-stream))))
 
+(defun get-postfix (token)
+    (alexandria:switch ((first token) :test 'eq)
+        (:INCREMENT :IncPop)
+        (:DECREMENT :DecPop)
+        (t (error (format nil "Error: Reached end of postfix operator map with token ~A~%" token)))))
+
+(defun parse-postfix-operator (token-stream left)
+    (values 
+        `(,(get-postfix (car token-stream)) ,left)
+        (cdr token-stream)))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -397,4 +418,6 @@
         (:LPAREN 'parse-call)
         (:ARROW 'parse-arrow-func)
         (:COLON 'parse-colon)
+        (:INCREMENT 'parse-postfix-operator)
+        (:DECREMENT 'parse-postfix-operator)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
