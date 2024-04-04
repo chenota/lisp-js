@@ -12,7 +12,7 @@
               ;; Comments
             '(("//.*\\n" nil)
               ;; Printing
-              ("console.log" :PRINT)
+              ("console\\.log" :PRINT)
               ;; Strings
               ("(\\x22).*(\\x22)" :STRING)
               ("(\\x27).*(\\x27)" :STRING)
