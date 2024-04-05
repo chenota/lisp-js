@@ -205,6 +205,46 @@
             `(:ReturnStmt ,right)
             new-token-stream)))
 
+(defun parse-if (token-stream)
+    ;; Get rid of if keyword
+    (progn 
+        (setq token-stream (cdr token-stream))
+        ;; Check if next thing is an lparen
+        (if (eq (caar token-stream) :LPAREN)
+            ;; If so, parse lparen as null denotation
+            (multiple-value-bind 
+                (inparens new-token-stream)
+                (parse-parens token-stream)
+                ;; Check if next token is an lbracket
+                (if (eq (caar new-token-stream) :LBRACKET)
+                    ;; If so, parse as a null denotation
+                    (multiple-value-bind
+                        (if-blk newer-token-stream)
+                        (parse-bracket new-token-stream)
+                        ;; Check if else after bracket
+                        (if (eq (caar newer-token-stream) :ELSE)
+                            ;; If so, parse whatever is after and return result
+                            (multiple-value-bind 
+                                (else-blk newest-token-stream)
+                                ;; Skip past else so it doesn't get evaluated
+                                (expr-bp (cdr newer-token-stream) 3)
+                                (values 
+                                    `(:IfStmt ,inparens ,if-blk ,else-blk)
+                                    newest-token-stream))
+                            ;; Otherwise, just return current result
+                            (values 
+                                `(:IfStmt ,inparens ,if-blk nil)
+                                newer-token-stream)))
+                    ;; If not, parse whatever is after and return result
+                    (multiple-value-bind
+                        (if-blk newer-token-stream)
+                        (expr-bp new-token-stream 3)
+                        (values 
+                            `(:IfStmt ,inparens ,if-blk nil)
+                            newer-token-stream))))
+            ;; Otherwise, error
+            (error (format nil "Error: Expected LPAREN after IF keyword, got ~A~%" (caar token-stream))))))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -226,6 +266,7 @@
         (:CONST 'parse-const)
         (:LET 'parse-let)
         (:RETURN 'parse-return)
+        (:IF 'parse-if)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
