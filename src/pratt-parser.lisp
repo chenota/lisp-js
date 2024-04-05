@@ -102,7 +102,7 @@
         (:ASBITOR (values 3 3))
         (:ASLOGAND (values 3 3))
         (:ASLOGOR (values 3 3))
-        (:TERNARY (values 16 15))
+        (:TERNARY (values 7 6)) ;; Ternary same as colon
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
         (:LPAREN (values 1 1))

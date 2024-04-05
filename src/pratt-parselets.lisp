@@ -428,6 +428,24 @@
         `(,(get-postfix (car token-stream)) ,left)
         (cdr token-stream)))
 
+(defun parse-ternary (token-stream left)
+    ;; Get binding powers of ternary
+    (multiple-value-bind
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Evaluate right side of ternary
+        (multiple-value-bind
+            (right new-token-stream)
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Check if colonexpr after question mark
+            (if (eq (car right) :ColonExpr)
+                ;; Extract right and left from colon operator as true/false
+                (values 
+                    `(:TernExpr ,left ,(cadr right) ,(caddr right))
+                    new-token-stream)
+                ;; Otherwise, error
+                (error (format nil "Error: ternary expression requires :~%"))))))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -461,4 +479,5 @@
         (:COLON 'parse-colon)
         (:INCREMENT 'parse-postfix-operator)
         (:DECREMENT 'parse-postfix-operator)
+        (:TERNARY 'parse-ternary)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
