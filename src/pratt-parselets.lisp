@@ -139,26 +139,31 @@
             ;; Return parsed expr, bump past rbracket in new token stream
             (values 
                 `(:Block ,right)
-                (cdr new-token-stream)))
-    ))
+                (cdr new-token-stream)))))
 
 (defun parse-list (token-stream)
-    ;; Parse the stream after the opening bracket
-    (multiple-value-bind 
-        (right new-token-stream)
-        ;; Reset binding power back to two then evaluate
-        (expr-bp (cdr token-stream) grouping-bp)
-        ;; Check for errors
-        (progn 
+    ;; Check if immediate closing bracket
+    (if (eq (caadr token-stream) :RSQBRACKET)
+        ;; If so, return empty list expression
+        (values
+            `(:ListExpr nil)
+            ;; Bump past [ and ] in token stream
+            (cddr token-stream))
+        ;; Otherwise, evaluate until reach closing bracket
+        (multiple-value-bind 
+            (right new-token-stream)
+            ;; Reset binding power back to two then evaluate
+            (expr-bp (cdr token-stream) grouping-bp)
+            ;; Check for errors
             (if 
                 (not (eq (first (first new-token-stream)) :RSQBRACKET))
-                (error "Parsing Error: No closing square bracket!")
-                nil)
-            ;; Return parsed expr, bump past r sq bracket in new token stream
-            (values 
-                `(:ListExpr ,right)
-                (cdr new-token-stream)))
-    ))
+                (error "Parsing Error: List must be closed by ]")
+                (values 
+                    ;; If commalist inside of brackets, extract values
+                    (if (eq (car right) :COMMALIST)
+                        `(:ListExpr ,@(cdr right))
+                        `(:ListExpr ,right))
+                    (cdr new-token-stream))))))
 
 (defun parse-const (token-stream)
     ;; Parse the stream after the const keyword

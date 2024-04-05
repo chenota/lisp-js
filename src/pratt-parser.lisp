@@ -105,11 +105,11 @@
         (:TERNARY (values 7 6)) ;; Ternary same as colon
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
-        (:LPAREN (values 1 1))
+        (:LPAREN (values 100 1))
         (:RPAREN (values 0 0))
-        (:LBRACKET (values 1 1))
+        (:LBRACKET (values 100 1))
         (:RBRACKET (values 0 0))
-        (:LSQBRACKET (values 4 4))
+        (:LSQBRACKET (values 100 4))
         (:RSQBRACKET (values 3 3))
         ;; Semicolon
         (:SEMICOLON (values 2 1))
