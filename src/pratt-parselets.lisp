@@ -4,6 +4,17 @@
 
 (defparameter grouping-bp 4)
 
+;; Helper function: Extracts strings from list of identvals
+(defun extract-ident-str (identlist)
+    (reduce 
+        (lambda (new acc)
+            (if (eq (car new) :IdentVal)
+                (cons (cadr new) acc)
+                (error (format nil "Error: Extract-ident-str expected IDENTVAL, got ~A~%" new))))
+        identlist
+        :initial-value nil 
+        :from-end t))
+
 ;; Return the value identifier associated with each token type
 (defun get-primitive (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -93,7 +104,7 @@
                     ;; If next token is identifier, then extract token value and advance token stream
                     (let 
                         ;; Have to store name before advance past it
-                        ((temp-name (car token-stream)))
+                        ((temp-name (cadar token-stream)))
                         (progn 
                             (setq token-stream (cdr token-stream))
                             temp-name))
@@ -116,7 +127,11 @@
                             (parse-bracket new-token-stream)
                             ;; Return funcexpr and token stream
                             (values 
-                                `(:FuncExpr ,fn-name ,params ,block)
+                                ;; Parse params so flat list of strings
+                                (alexandria:switch ((car params) :test 'eq)
+                                    (:UNIT `(:FuncExpr ,fn-name nil ,block))
+                                    (:COMMALIST `(:FuncExpr ,fn-name ,(extract-ident-str (cadr params)) ,block))
+                                    (t `(:FuncExpr ,fn-name ,(extract-ident-str (list params)) ,block)))
                                 newer-token-stream))
                         ;; Otherwise, throw error
                         (error "Error: Expected LBRACKET after function parameters"))
@@ -159,7 +174,7 @@
                 (not (eq (first (first new-token-stream)) :RSQBRACKET))
                 (error "Parsing Error: List must be closed by ]")
                 (values 
-                    ;; If commalist inside of brackets, extract values
+                    ;; If commalist inside of brackets, extract values from commalist
                     (if (eq (car right) :COMMALIST)
                         `(:ListExpr ,@(cdr right))
                         `(:ListExpr ,right))
@@ -405,7 +420,11 @@
             (expr-bp (cdr token-stream) r-bp)
             ;; Return new arrow func expression
             (values 
-                `(:ArrowFuncExpr ,left ,right)
+                ;; Parse params so flat list of strings
+                (alexandria:switch ((car left) :test 'eq)
+                    (:UNIT `(:FuncExpr nil nil ,right))
+                    (:COMMALIST `(:FuncExpr nil ,(extract-ident-str (cadr left)) ,right))
+                    (t `(:FuncExpr nil ,(extract-ident-str (list left)) ,right)))
                 new-token-stream))))
 
 (defun parse-colon (token-stream left)
