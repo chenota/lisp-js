@@ -383,7 +383,10 @@
         (parse-parens token-stream)
         ;; Make a call expr
         (values 
-            `(:CallExpr ,left ,right)
+            (alexandria:switch ((car right) :test 'eq)
+                (:UNIT `(:CallExpr ,left nil))
+                (:COMMALIST `(:CallExpr ,left ,(cadr right)))
+                (t `(:CallExpr ,left (,right))))
             new-token-stream)))
 
 ;; Return the assignment operator identifier associated with each token type
