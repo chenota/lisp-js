@@ -80,7 +80,7 @@
         (multiple-value-bind 
             (right new-token-stream)
             ;; Reset binding power back to one then evaluate
-            (expr-bp (cdr token-stream) grouping-bp)
+            (expr-bp (cdr token-stream) 1)
             ;; Check for errors
             (progn 
                 (if 
@@ -265,6 +265,44 @@
             ;; Otherwise, error
             (error (format nil "Error: Expected LPAREN after IF keyword, got ~A~%" (caar token-stream))))))
 
+(defun parse-for (token-stream)
+    ;; Check for lparen next in token-stream
+    (if (eq (caadr token-stream) :LPAREN)
+        ;; If so, parse paren expression 
+        (multiple-value-bind 
+            (conds new-token-stream)
+            (parse-parens (cdr token-stream))
+            ;; Check if get semicolon list
+            (if (and (eq (car conds) :STMTLIST) (= (length (cadr conds)) 3))
+                ;; If so, move on and parse the rest
+                (multiple-value-bind 
+                    (right newer-token-stream)
+                    (expr-bp new-token-stream 1)
+                    (values
+                        `(:ForStmt ,@(cadr conds) ,right)
+                        newer-token-stream))
+                ;; Error: Must have STMT
+                (error (format nil "Error: Must have three statements in FOR loop"))))
+    ;; Otherwise, error
+    (error (format nil "Error: A for loop must be followed by an LPAREN token"))))
+
+(defun parse-while (token-stream)
+    ;; Check for lparen next in token-stream
+    (if (eq (caadr token-stream) :LPAREN)
+        ;; If so, parse paren expression 
+        (multiple-value-bind 
+            (cond new-token-stream)
+            (parse-parens (cdr token-stream))
+            ;; Get expression after while loop
+            (multiple-value-bind 
+                (right newer-token-stream)
+                (expr-bp new-token-stream 1)
+                (values 
+                    `(:WhileStmt ,cond ,right)
+                    newer-token-stream)))
+    ;; Otherwise, error
+    (error (format nil "Error: A while loop must be followed by an LPAREN token"))))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -287,6 +325,8 @@
         (:LET 'parse-let)
         (:RETURN 'parse-return)
         (:IF 'parse-if)
+        (:FOR 'parse-for)
+        (:WHILE 'parse-while)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
