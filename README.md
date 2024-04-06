@@ -8,11 +8,11 @@ Lisp-JS is a JavaScript interpreter written entirely in Common Lisp. This projec
 
 The lexer converts a string into a list of tokens that will be used by the parser. The main lexer functionality is contained in src/tokenizer.lisp, although it also uses functions from src/js-convert.lisp.
 
-## TODO
-
 ### Parser
 
-I've implemented a Pratt parser that can successfully parse JS-based arithmetic expressons. So far, I have made good progress on implementing non-arithmetic functionality like lists, functions, objects, if-else, let/const, etc.
+I've implemented a Pratt parser that can successfully parse a great deal of JS code. At this point, the parser may need some refinement down the line, but it's more than good enough to start implementing a nontrivial evaluator.
+
+## TODO
 
 ### Evaluator
 
