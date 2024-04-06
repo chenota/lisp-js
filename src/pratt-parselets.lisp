@@ -22,6 +22,7 @@
         (:BOOLEAN :BoolVal)
         (:STRING :StrVal)
         (:IDENTIFIER :IdentVal)
+        (:PRINT :PrintFn)
         (t (error (format nil "Error: Reached end of primitive map with token ~A~%" token)))))
 
 ;; Parse a primitive value
@@ -277,7 +278,7 @@
                 ;; If so, move on and parse the rest
                 (multiple-value-bind 
                     (right newer-token-stream)
-                    (expr-bp new-token-stream 1)
+                    (expr-bp new-token-stream 3)
                     (values
                         `(:ForStmt ,@(cadr conds) ,right)
                         newer-token-stream))
@@ -296,7 +297,7 @@
             ;; Get expression after while loop
             (multiple-value-bind 
                 (right newer-token-stream)
-                (expr-bp new-token-stream 1)
+                (expr-bp new-token-stream 3)
                 (values 
                     `(:WhileStmt ,cond ,right)
                     newer-token-stream)))
@@ -327,6 +328,7 @@
         (:IF 'parse-if)
         (:FOR 'parse-for)
         (:WHILE 'parse-while)
+        (:PRINT 'parse-primitive)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
