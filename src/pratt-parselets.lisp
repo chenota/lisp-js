@@ -66,7 +66,7 @@
             (expr-bp (cdr token-stream) r-bp)
             ;; Return new token stream and parsed infix operator
             (values
-                `(,(get-uop (first token-stream)) ,right)
+                `(:PreOpExpr ,(get-uop (first token-stream)) ,right)
                 new-token-stream))))
 
 (defun parse-parens (token-stream)

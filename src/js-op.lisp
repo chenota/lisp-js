@@ -56,3 +56,15 @@
                     (eq (second rnum) :NaN))
                 `(:NumVal :NaN)
                 `(:NumVal ,(/ (second lnum) (second rnum))))))
+
+(defun js-negate (val)
+    (let ((num (to-num val)))
+        (if (eq (second num) :NaN)
+            `(:NumVal :NaN)
+            `(:NumVal ,(* -1.0 (second num))))))
+
+(defun js-abs (val)
+    (let ((num (to-num val)))
+        (if (eq (second num) :NaN)
+            `(:NumVal :NaN)
+            `(:NumVal ,(abs (second num))))))

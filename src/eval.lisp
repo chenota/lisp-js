@@ -25,6 +25,15 @@
                         (:MinusBop (js-minus left-val right-val))
                         (:TimesBop (js-times left-val right-val))
                         (:DivBop (js-div left-val right-val))))))
+        ;; Prefix operators
+        (:PreOpExpr
+            (destructuring-bind
+                (_ operator operand)
+                expr 
+                (declare (ignore _))
+                (alexandria:switch (operator :test 'eq)
+                    (:NegUop (js-negate (expr-eval operand)))
+                    (:PosUop (js-abs (expr-eval operand))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))
 
