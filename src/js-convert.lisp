@@ -40,3 +40,21 @@
         ("false" nil)
         ("true" t)
         (t nil)))
+
+(defun to-str (value)
+    `(:StrVal 
+        ,(alexandria:switch ((first value) :test 'eq)
+            (:StrVal (second value))
+            (:NumVal (format nil "~,,,,F" (second value)))
+            (:BoolVal (if (second value) "true" "false"))
+            (:UndefVal "undefined")
+            (t (error (format t "Error: At end of to-str function with value ~%~A" value))))))
+
+(defun to-num (value)
+    `(:NumVal
+        ,(alexandria:switch ((first value) :test 'eq)
+            (:NumVal (second value))
+            (:StrVal :NaN)
+            (:BoolVal (if (second value) 1 0))
+            (:UndefVal :NaN)
+            (t (error (format t "Error: At end of to-num function with value ~%~A" value))))))

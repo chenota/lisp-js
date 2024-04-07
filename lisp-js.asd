@@ -13,4 +13,6 @@
                (:file "src/tokenizer")
                (:file "src/js-convert")
                (:file "src/pratt-parser")
-               (:file "src/pratt-parselets")))
+               (:file "src/pratt-parselets")
+               (:file "src/eval")
+               (:file "src/js-op")))

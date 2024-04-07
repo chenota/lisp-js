@@ -304,6 +304,11 @@
     ;; Otherwise, error
     (error (format nil "Error: A while loop must be followed by an LPAREN token"))))
 
+(defun parse-nan (token-stream)
+    (values 
+        `(:NumVal :NaN)
+        (cdr token-stream)))
+
 ;; Maps token type to its null denotation parselet
 (defun null-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -329,6 +334,7 @@
         (:FOR 'parse-for)
         (:WHILE 'parse-while)
         (:PRINT 'parse-primitive)
+        (:NaN 'parse-nan)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
