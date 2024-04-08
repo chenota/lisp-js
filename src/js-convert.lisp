@@ -55,7 +55,11 @@
     `(:NumVal
         ,(alexandria:switch ((first value) :test 'eq)
             (:NumVal (second value))
-            (:StrVal :NaN)
+            ;; If string, must try to make number out of it then fail
+            (:StrVal 
+                ;; Trim leading and lagging whitespace from string
+                (handler-case (token-str-to-num (string-trim '(#\Space #\Tab #\Newline) (second value)))
+                    (error (c) :NaN)))
             (:BoolVal (if (second value) 1 0))
             (:UndefVal :NaN)
             (:NullVal 0)
