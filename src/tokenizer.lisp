@@ -94,6 +94,7 @@
               ("else" :ELSE)
               ("in" :IN)
               ("NaN" :NAN)
+              ("null" :NULL)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

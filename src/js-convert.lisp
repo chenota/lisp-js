@@ -48,6 +48,7 @@
             (:NumVal (format nil "~,,,,F" (second value)))
             (:BoolVal (if (second value) "true" "false"))
             (:UndefVal "undefined")
+            (:NullVal "null")
             (t (error (format t "Error: At end of to-str function with value ~%~A" value))))))
 
 (defun to-num (value)
@@ -57,6 +58,7 @@
             (:StrVal :NaN)
             (:BoolVal (if (second value) 1 0))
             (:UndefVal :NaN)
+            (:NullVal 0)
             (t (error (format t "Error: At end of to-num function with value ~%~A" value))))))
 
 (defun to-bool (value)
@@ -65,4 +67,6 @@
             (:BoolVal (second value))
             (:NumVal (if (or (= (second value) 0.0) (eq (second value) :NaN)) nil t))
             (:StrVal (if (equal (second value) "") nil t))
-            (:UndefVal nil))))
+            (:UndefVal nil)
+            (:NullVal nil)
+            (t (error (format t "Error: At end of to-bool function with value ~%~A" value))))))

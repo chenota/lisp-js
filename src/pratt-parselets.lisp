@@ -40,6 +40,13 @@
         `(:UndefVal nil)
         (cdr token-stream)))
 
+(defun parse-null (token-stream)
+    ;; Return null and token stream
+    ;; to the right of this operation
+    (values 
+        `(:NullVal nil)
+        (cdr token-stream)))
+
 ;; Return the Uop identifier associated with each operator
 (defun get-uop (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -335,6 +342,7 @@
         (:WHILE 'parse-while)
         (:PRINT 'parse-primitive)
         (:NaN 'parse-nan)
+        (:NULL 'parse-null)
         (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
 
 ;; Return the Bop identifier associated with each token type
