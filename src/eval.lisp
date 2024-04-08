@@ -13,27 +13,44 @@
                 (_ operator left right)
                 expr 
                 (declare (ignore _))
-                (let 
-                    ;; Evaluate left and right sides to get their values
-                    ((left-val (expr-eval left))
-                     (right-val (expr-eval right)))
-                    ;; Check which operator
-                    (alexandria:switch (operator :test 'eq)
-                        ;; Plus has unique behavior when string is involved
-                        (:PlusBop (js-plus left-val right-val))
-                        ;; -, *, and / all should just convert to number then evaluate
-                        (:MinusBop (js-minus left-val right-val))
-                        (:TimesBop (js-times left-val right-val))
-                        (:DivBop (js-div left-val right-val))))))
+                ;; Check which operator
+                (alexandria:switch (operator :test 'eq)
+                    ;; Basic arithmetic operators
+                    ;; Plus has unique behavior when string is involved
+                    (:PlusBop (js-plus (expr-eval left) (expr-eval right)))
+                    ;; -, *, and / all should just convert to number then evaluate
+                    (:MinusBop (js-minus (expr-eval left) (expr-eval right)))
+                    (:TimesBop (js-times (expr-eval left) (expr-eval right)))
+                    (:DivBop (js-div (expr-eval left) (expr-eval right)))
+                    ;; Logical operators
+                    (:LogOrBop
+                        (let ((first-operand (expr-eval left)))
+                            (if (second (to-bool first-operand))
+                                first-operand
+                                (expr-eval right))))
+                    (:LogAndBop
+                        (let ((first-operand (expr-eval left)))
+                            (if (second (to-bool first-operand))
+                                (expr-eval right)
+                                first-operand))))))
         ;; Prefix operators
         (:PreOpExpr
-            (destructuring-bind
-                (_ operator operand)
+            (destructuring-bind 
+                (_ operator operand) 
                 expr 
                 (declare (ignore _))
                 (alexandria:switch (operator :test 'eq)
                     (:NegUop (js-negate (expr-eval operand)))
                     (:PosUop (js-abs (expr-eval operand))))))
+        ;; Ternary
+        (:TernExpr
+            (destructuring-bind
+                (_ test pass fail)
+                expr 
+                (declare (ignore _))
+                (if (second (to-bool (expr-eval test)))
+                    (expr-eval pass)
+                    (expr-eval fail))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))
 

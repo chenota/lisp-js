@@ -58,3 +58,11 @@
             (:BoolVal (if (second value) 1 0))
             (:UndefVal :NaN)
             (t (error (format t "Error: At end of to-num function with value ~%~A" value))))))
+
+(defun to-bool (value)
+    `(:BoolVal
+        ,(alexandria:switch ((first value) :test 'eq)
+            (:BoolVal (second value))
+            (:NumVal (if (or (= (second value) 0.0) (eq (second value) :NaN)) nil t))
+            (:StrVal (if (equal (second value) "") nil t))
+            (:UndefVal nil))))

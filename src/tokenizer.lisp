@@ -14,8 +14,8 @@
               ;; Printing
               ("console\\.log" :PRINT)
               ;; Strings
-              ("(\\x22).*(\\x22)" :STRING)
-              ("(\\x27).*(\\x27)" :STRING)
+              ("(\\x22)[^\\x22]*(\\x22)" :STRING)
+              ("(\\x27)[^\\x27]*(\\x27)" :STRING)
               ;; Semicolon
               (";" :SEMICOLON)
               ;; Grouping operators
