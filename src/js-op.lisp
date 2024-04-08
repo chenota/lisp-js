@@ -57,6 +57,90 @@
                 `(:NumVal :NaN)
                 `(:NumVal ,(/ (second lnum) (second rnum))))))
 
+(defun js-lt (left-val right-val)
+    ;; Check for strings
+    (if 
+        (and 
+            (eq (first left-val) :StrVal) 
+            (eq (first right-val) :StrVal))
+        ;; Do string alphabetical comparison
+        ;; Doing not not to convert non-nil value to true if is non-nil
+        `(:BoolVal ,(not (not(string< (second left-val) (second right-val)))))
+        ;; Otherwise, evaluate as numbers
+        (let  
+            ((lnum (to-num left-val))
+             (rnum (to-num right-val)))
+            (if  
+                (or  
+                    (eq (second lnum) :NaN)
+                    (eq (second rnum) :NaN))
+                `(:BoolVal nil)
+                
+                `(:BoolVal ,(< (second lnum) (second rnum)))))))
+
+(defun js-lte (left-val right-val)
+    ;; Check for strings
+    (if 
+        (and 
+            (eq (first left-val) :StrVal) 
+            (eq (first right-val) :StrVal))
+        ;; Do string alphabetical comparison
+        ;; Doing not not to convert non-nil value to true if is non-nil
+        `(:BoolVal ,(not (not(string<= (second left-val) (second right-val)))))
+        ;; Otherwise, evaluate as numbers
+        (let  
+            ((lnum (to-num left-val))
+             (rnum (to-num right-val)))
+            (if  
+                (or  
+                    (eq (second lnum) :NaN)
+                    (eq (second rnum) :NaN))
+                `(:BoolVal nil)
+                
+                `(:BoolVal ,(<= (second lnum) (second rnum)))))))
+
+(defun js-gt (left-val right-val)
+    ;; Check for strings
+    (if 
+        (and 
+            (eq (first left-val) :StrVal) 
+            (eq (first right-val) :StrVal))
+        ;; Do string alphabetical comparison
+        ;; Doing not not to convert non-nil value to true if is non-nil
+        `(:BoolVal ,(not (not(string> (second left-val) (second right-val)))))
+        ;; Otherwise, evaluate as numbers
+        (let  
+            ((lnum (to-num left-val))
+             (rnum (to-num right-val)))
+            (if  
+                (or  
+                    (eq (second lnum) :NaN)
+                    (eq (second rnum) :NaN))
+                `(:BoolVal nil)
+                
+                `(:BoolVal ,(> (second lnum) (second rnum)))))))
+
+(defun js-gte (left-val right-val)
+    ;; Check for strings
+    (if 
+        (and 
+            (eq (first left-val) :StrVal) 
+            (eq (first right-val) :StrVal))
+        ;; Do string alphabetical comparison
+        ;; Doing not not to convert non-nil value to true if is non-nil
+        `(:BoolVal ,(not (not(string>= (second left-val) (second right-val)))))
+        ;; Otherwise, evaluate as numbers
+        (let  
+            ((lnum (to-num left-val))
+             (rnum (to-num right-val)))
+            (if  
+                (or  
+                    (eq (second lnum) :NaN)
+                    (eq (second rnum) :NaN))
+                `(:BoolVal nil)
+                
+                `(:BoolVal ,(>= (second lnum) (second rnum)))))))
+
 (defun js-negate (val)
     (let ((num (to-num val)))
         (if (eq (second num) :NaN)

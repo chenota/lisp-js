@@ -22,6 +22,11 @@
                     (:MinusBop (js-minus (expr-eval left) (expr-eval right)))
                     (:TimesBop (js-times (expr-eval left) (expr-eval right)))
                     (:DivBop (js-div (expr-eval left) (expr-eval right)))
+                    ;; Comparison operators
+                    (:LtBop (js-lt (expr-eval left) (expr-eval right)))
+                    (:LteBop (js-lte (expr-eval left) (expr-eval right)))
+                    (:GtBop (js-gt (expr-eval left) (expr-eval right)))
+                    (:GteBop (js-gte (expr-eval left) (expr-eval right)))
                     ;; Logical operators
                     (:LogOrBop
                         (let ((first-operand (expr-eval left)))
