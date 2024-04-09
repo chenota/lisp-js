@@ -2,6 +2,26 @@
 
 (in-package #:lisp-js)
 
+(defun stmt-eval (stmt)
+    ;; Get type of statement and eval accordingly
+    (alexandria:switch ((first stmt) :test 'eq)
+        ;; Eval list of statements
+        (:StmtList
+            ;; Extract list of stmts from AST 
+            (destructuring-bind 
+                (_ &rest args)
+                stmt
+                (declare (ignore _))
+                ;; Eval each statement in list
+                ;; basically reduce just goes through everything and returns final result
+                (reduce 
+                    (lambda (acc new) (stmt-eval new))
+                    args 
+                    ;; Initialize w/ undefined just to be safe
+                    :initial-value '(:undefVal nil))))
+        ;; If all fail, eval as expr
+        (t (expr-eval stmt))))
+
 ;; Recursively evaluate an expression
 (defun expr-eval (expr)
     ;; Get type of expression and eval accordingly
@@ -51,7 +71,8 @@
                 (declare (ignore _))
                 (alexandria:switch (operator :test 'eq)
                     (:NegUop (js-negate (expr-eval operand)))
-                    (:PosUop (js-abs (expr-eval operand))))))
+                    (:PosUop (js-abs (expr-eval operand)))
+                    (:BangUop (js-not (expr-eval operand))))))
         ;; Ternary
         (:TernExpr
             (destructuring-bind

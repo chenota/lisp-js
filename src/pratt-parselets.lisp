@@ -401,7 +401,7 @@
             (values
                 (if 
                     (eq (car right) :STMTLIST)
-                    `(:STMTLIST (,left ,@(car (cdr right))))
+                    `(:STMTLIST ,left ,@(car (cdr right)))
                     `(:STMTLIST (,left ,right)))
                 new-token-stream))))
 

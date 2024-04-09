@@ -153,6 +153,9 @@
             `(:NumVal :NaN)
             `(:NumVal ,(abs (second num))))))
 
+(defun js-not (val)
+    `(:BoolVal ,(not (second (to-bool val)))))
+
 ;; Follows IsLooselyEqual semantic
 (defun js-eq (left-val right-val)
     ;; If same type, follow streq semantic
