@@ -15,4 +15,5 @@
                (:file "src/pratt-parser")
                (:file "src/pratt-parselets")
                (:file "src/eval")
-               (:file "src/js-op")))
+               (:file "src/js-op")
+               (:file "src/js-env")))

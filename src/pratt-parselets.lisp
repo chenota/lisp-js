@@ -193,13 +193,13 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Set BP to two so stops at semicolon
-        (expr-bp (cdr token-stream) grouping-bp)
+        (expr-bp (cdr token-stream) 3)
         ;; A const must be associated with a generic assignment
         (if (eq (car right) :GENERICASSIGN)
             (values 
                 `(:AssignStmt t ,@(cdr right))
                 new-token-stream)
-            (error "Error: A const must be followed by a generic assign!"))))
+            (error "Error: A const must be followed by a generic assign"))))
 
 (defun parse-let (token-stream)
     ;; Parse the stream after the const keyword
@@ -401,8 +401,8 @@
             (values
                 (if 
                     (eq (car right) :STMTLIST)
-                    `(:STMTLIST ,left ,@(car (cdr right)))
-                    `(:STMTLIST (,left ,right)))
+                    `(:STMTLIST ,left ,@(cdr right))
+                    `(:STMTLIST ,left ,right))
                 new-token-stream))))
 
 (defun parse-comma (token-stream left)

@@ -18,7 +18,19 @@
                     (lambda (acc new) (stmt-eval new))
                     args 
                     ;; Initialize w/ undefined just to be safe
-                    :initial-value '(:undefVal nil))))
+                    :initial-value '(:UndefVal nil))))
+        (:AssignStmt
+            ;; Extract parts of assign
+            (destructuring-bind
+                (_ is-const ident right)
+                stmt
+                (declare (ignore _))
+                ;; Check if const
+                (if is-const 
+                    ;; If const, store directly on stack
+                    (push-current-frame (second ident) (expr-eval right))
+                    ;; If not const, assumed to be let, store as refval
+                    (error "Unimplemented let"))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
@@ -87,4 +99,12 @@
 
 ;; Val-eval is just an identity function, but may need to update in future or get rid of
 (defun val-eval (val)
-    val)
+    (alexandria:switch ((first val) :test 'eq)
+        ;; If find identval, attempt to search the stack for the variable and return its value
+        ;; if it exists.
+        (:IdentVal 
+            (let ((var-val (search-stack (second val))))
+                (if var-val
+                    var-val 
+                    (error (format nil "ReferenceError: ~A is not defined~%" (second val))))))
+        (t val)))
