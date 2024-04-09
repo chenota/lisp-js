@@ -19,18 +19,47 @@
                     args 
                     ;; Initialize w/ undefined just to be safe
                     :initial-value '(:UndefVal nil))))
+        ;; Const and let statements
         (:AssignStmt
             ;; Extract parts of assign
             (destructuring-bind
                 (_ is-const ident right)
                 stmt
                 (declare (ignore _))
-                ;; Check if const
-                (if is-const 
-                    ;; If const, store directly on stack
-                    (push-current-frame (second ident) (expr-eval right))
-                    ;; If not const, assumed to be let, store as refval
-                    (error "Unimplemented let"))))
+                ;; Make sure not redefining in current scope
+                (if 
+                    (search-current-frame (second ident))
+                    ;; If so, throw error
+                    (error (format nil "SyntaxError: Identifier '~A' has already been declared~%" (second ident)))
+                    ;; Otherwise, good to go
+                    (progn 
+                        ;; Check if let or const
+                        (if is-const 
+                            ;; If const, store directly on stack
+                            (push-current-frame (second ident) (expr-eval right))
+                            ;; If not const, assumed to be let, push to heap and store pointer on stack
+                            (push-current-frame (second ident) (push-heap (expr-eval right))))
+                        ;; Always return undefined
+                        '(:UndefVal nil)))))
+        ;; x = y
+        (:GenericAssign
+            ;; Extract parts of assign
+            (destructuring-bind
+                (_ ident right)
+                stmt 
+                (declare (ignore _))
+                ;; Attempt to get variable on lhs of operator
+                (let ((var (search-stack (second ident))))
+                    ;; Check if variable exists
+                    (if var 
+                        ;; Check if variable is a reference
+                        (if (eq (first var) :RefVal)
+                            ;; Set heap reference to new value and return value it was set to
+                            (let ((right-val (expr-eval right)))
+                                (set-heap var right-val)
+                                right-val)
+                            (error "TypeError: Assignment to constant variable"))
+                        (error (format nil "ReferenceError: ~A is not defined~%" (second ident)))))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
@@ -84,7 +113,52 @@
                 (alexandria:switch (operator :test 'eq)
                     (:NegUop (js-negate (expr-eval operand)))
                     (:PosUop (js-abs (expr-eval operand)))
-                    (:BangUop (js-not (expr-eval operand))))))
+                    (:BangUop (js-not (expr-eval operand)))
+                    (:IncUop 
+                        (let* 
+                            ;; Calculate new operand value
+                            ((operand-as-num (to-num (expr-eval operand)))
+                             (op-result (js-plus operand-as-num '(:NumVal 1))))
+                            ;; Update reference and return
+                            (progn 
+                                (stmt-eval `(:GenericAssign ,operand ,op-result))
+                                op-result)))
+                    (:DecUop 
+                        (let* 
+                            ;; Calculate new operand value
+                            ((operand-as-num (to-num (expr-eval operand)))
+                             (op-result (js-minus operand-as-num '(:NumVal 1))))
+                            ;; Update reference and return
+                            (progn 
+                                (stmt-eval `(:GenericAssign ,operand ,op-result))
+                                op-result)))
+                    (t (error (format nil "Made it to the end of PreOpExpr eval with ~A" operator))))))
+        ;; Postfix operators
+        (:PostOpExpr
+            (destructuring-bind 
+                (_ operator operand) 
+                expr 
+                (declare (ignore _))
+                (alexandria:switch (operator :test 'eq)
+                    (:IncUop 
+                        (let* 
+                            ;; Calculate new operand value
+                            ((operand-as-num (to-num (expr-eval operand)))
+                             (op-result (js-plus operand-as-num '(:NumVal 1))))
+                            ;; Update reference and return
+                            (progn 
+                                (stmt-eval `(:GenericAssign ,operand ,op-result))
+                                operand-as-num)))
+                    (:DecUop 
+                        (let* 
+                            ;; Calculate new operand value
+                            ((operand-as-num (to-num (expr-eval operand)))
+                             (op-result (js-minus operand-as-num '(:NumVal 1))))
+                            ;; Update reference and return
+                            (progn 
+                                (stmt-eval `(:GenericAssign ,operand ,op-result))
+                                operand-as-num)))
+                    (t (error (format nil "Made it to the end of PostOpExpr eval with ~A" operator))))))
         ;; Ternary
         (:TernExpr
             (destructuring-bind
@@ -105,6 +179,9 @@
         (:IdentVal 
             (let ((var-val (search-stack (second val))))
                 (if var-val
-                    var-val 
+                    (val-eval var-val) 
                     (error (format nil "ReferenceError: ~A is not defined~%" (second val))))))
+        ;; If RefVal, get value it points to
+        (:RefVal
+            (get-heap val))
         (t val)))

@@ -206,7 +206,7 @@
     (multiple-value-bind 
         (right new-token-stream)
         ;; Set BP to two so stops at semicolon
-        (expr-bp (cdr token-stream) grouping-bp)
+        (expr-bp (cdr token-stream) 3)
         ;; A const must be associated with a generic assignment OR an identifier
         (alexandria:switch ((car right) :test 'eq)
             ;; If let x = y, do same thing as const
@@ -502,13 +502,13 @@
 
 (defun get-postfix (token)
     (alexandria:switch ((first token) :test 'eq)
-        (:INCREMENT :IncPop)
-        (:DECREMENT :DecPop)
+        (:INCREMENT :IncUop)
+        (:DECREMENT :DecUop)
         (t (error (format nil "Error: Reached end of postfix operator map with token ~A~%" token)))))
 
 (defun parse-postfix-operator (token-stream left)
     (values 
-        `(,(get-postfix (car token-stream)) ,left)
+        `(:PostOpExpr ,(get-postfix (car token-stream)) ,left)
         (cdr token-stream)))
 
 (defun parse-ternary (token-stream left)

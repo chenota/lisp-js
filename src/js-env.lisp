@@ -36,6 +36,9 @@
         frame 
         :initial-value nil))
 
+(defun search-current-frame (name)
+    (search-frame (first *stack*) name))
+
 ;; Search whole stack for variable
 (defun search-stack (name)
     ;; Loop through all stack frames
@@ -47,3 +50,28 @@
                 acc))
         *stack*
         :initial-value nil))
+
+(defparameter *heap* nil)
+
+(defun push-heap (value)
+    (progn 
+        (setf *heap* (cons value *heap*))
+        `(:RefVal ,(- (length *heap*) 1))))
+
+(defun get-heap (ref)
+    (if 
+        (and 
+            (eq (first ref) :RefVal)
+            (>= 0 (second ref))
+            (< (second ref) (length *heap*)))
+        (nth (second ref) *heap*)
+        (error (format nil "Error: Invalid heap access with ~A~%" ref))))
+
+(defun set-heap (ref value)
+    (if 
+        (and 
+            (eq (first ref) :RefVal)
+            (>= 0 (second ref))
+            (< (second ref) (length *heap*)))
+        (setf (nth (second ref) *heap*) value)
+        (error (format nil "Error: Invalid heap access with ~A~%" ref))))
