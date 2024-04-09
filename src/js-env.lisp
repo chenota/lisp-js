@@ -62,7 +62,7 @@
     (if 
         (and 
             (eq (first ref) :RefVal)
-            (>= 0 (second ref))
+            (>= (second ref) 0)
             (< (second ref) (length *heap*)))
         (nth (second ref) *heap*)
         (error (format nil "Error: Invalid heap access with ~A~%" ref))))
@@ -71,7 +71,7 @@
     (if 
         (and 
             (eq (first ref) :RefVal)
-            (>= 0 (second ref))
+            (>= (second ref) 0)
             (< (second ref) (length *heap*)))
         (setf (nth (second ref) *heap*) value)
         (error (format nil "Error: Invalid heap access with ~A~%" ref))))
