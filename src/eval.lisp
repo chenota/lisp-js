@@ -36,9 +36,9 @@
                         ;; Check if let or const
                         (if is-const 
                             ;; If const, store directly on stack
-                            (push-current-frame (second ident) (expr-eval right))
+                            (push-current-frame (second ident) (resolve-reference (expr-eval right)))
                             ;; If not const, assumed to be let, push to heap and store pointer on stack
-                            (push-current-frame (second ident) (push-heap (expr-eval right))))
+                            (push-current-frame (second ident) (push-heap (resolve-reference (expr-eval right)))))
                         ;; Always return undefined
                         '(:UndefVal nil)))))
         ;; x = y
