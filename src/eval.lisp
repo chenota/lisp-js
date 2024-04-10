@@ -115,17 +115,18 @@
                         (let ((operandval (expr-eval operand)))
                             ;; Check if incrementing reference
                             (if (eq (first operandval) :RefVal)
-                                (set-heap operandval (js-plus '(:NumVal 1) (to-num (resolve-reference operandval))))
+                                (progn 
+                                    (set-heap operandval (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                    (resolve-reference operandval))
                                 (error "ReferenceError: Invalid right-hand side expression in prefix operation"))))
                     (:DecUop 
-                        (let* 
-                            ;; Calculate new operand value
-                            ((operand-as-num (to-num (expr-eval operand)))
-                             (op-result (js-minus operand-as-num '(:NumVal 1))))
-                            ;; Update reference and return
-                            (progn 
-                                (stmt-eval `(:GenericAssign ,operand ,op-result))
-                                op-result)))
+                        (let ((operandval (expr-eval operand)))
+                            ;; Check if incrementing reference
+                            (if (eq (first operandval) :RefVal)
+                                (progn 
+                                    (set-heap operandval (js-minus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                    (resolve-reference operandval))
+                                (error "ReferenceError: Invalid right-hand side expression in prefix operation"))))
                     (t (error (format nil "Made it to the end of PreOpExpr eval with ~A" operator))))))
         ;; Postfix operators
         (:PostOpExpr
@@ -135,23 +136,21 @@
                 (declare (ignore _))
                 (alexandria:switch (operator :test 'eq)
                     (:IncUop 
-                        (let* 
-                            ;; Calculate new operand value
-                            ((operand-as-num (to-num (expr-eval operand)))
-                             (op-result (js-plus operand-as-num '(:NumVal 1))))
-                            ;; Update reference and return
-                            (progn 
-                                (stmt-eval `(:GenericAssign ,operand ,op-result))
-                                operand-as-num)))
+                        (let ((operandval (expr-eval operand)))
+                            ;; Check if incrementing reference
+                            (if (eq (first operandval) :RefVal)
+                                (progn 
+                                    (set-heap operandval (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                    (js-minus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                (error "ReferenceError: Invalid left-hand side expression in postfix operation"))))
                     (:DecUop 
-                        (let* 
-                            ;; Calculate new operand value
-                            ((operand-as-num (to-num (expr-eval operand)))
-                             (op-result (js-minus operand-as-num '(:NumVal 1))))
-                            ;; Update reference and return
-                            (progn 
-                                (stmt-eval `(:GenericAssign ,operand ,op-result))
-                                operand-as-num)))
+                        (let ((operandval (expr-eval operand)))
+                            ;; Check if incrementing reference
+                            (if (eq (first operandval) :RefVal)
+                                (progn 
+                                    (set-heap operandval (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                    (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                (error "ReferenceError: Invalid left-hand side expression in postfix operation"))))
                     (t (error (format nil "Made it to the end of PostOpExpr eval with ~A" operator))))))
         ;; Ternary
         (:TernExpr
