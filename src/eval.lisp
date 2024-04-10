@@ -148,7 +148,7 @@
                             ;; Check if incrementing reference
                             (if (eq (first operandval) :RefVal)
                                 (progn 
-                                    (set-heap operandval (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
+                                    (set-heap operandval (js-minus (to-num (resolve-reference operandval)) '(:NumVal 1)))
                                     (js-plus (to-num (resolve-reference operandval)) '(:NumVal 1)))
                                 (error "ReferenceError: Invalid left-hand side expression in postfix operation"))))
                     (t (error (format nil "Made it to the end of PostOpExpr eval with ~A" operator))))))
@@ -158,7 +158,7 @@
                 (_ test pass fail)
                 expr 
                 (declare (ignore _))
-                (if (second (to-bool (expr-eval test)))
+                (if (second (to-bool (resolve-reference (expr-eval test))))
                     (expr-eval pass)
                     (expr-eval fail))))
         ;; If all else fails, attempt to evaluate as a value
