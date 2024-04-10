@@ -45,21 +45,18 @@
         (:GenericAssign
             ;; Extract parts of assign
             (destructuring-bind
-                (_ ident right)
+                (_ left right)
                 stmt 
                 (declare (ignore _))
                 ;; Attempt to get variable on lhs of operator
-                (let ((var (search-stack (second ident))))
-                    ;; Check if variable exists
-                    (if var 
-                        ;; Check if variable is a reference
-                        (if (eq (first var) :RefVal)
-                            ;; Set heap reference to new value and return value it was set to
-                            (let ((right-val (expr-eval right)))
-                                (set-heap var right-val)
-                                right-val)
-                            (error "TypeError: Assignment to constant variable"))
-                        (error (format nil "ReferenceError: ~A is not defined~%" (second ident)))))))
+                (let ((lval (expr-eval left)))
+                    ;; Check if left is a reference
+                    (if (eq (first lval) :RefVal)
+                        ;; Set heap reference to new value and return value it was set to
+                        (progn 
+                            (set-heap lval (resolve-reference (expr-eval right)))
+                            lval)
+                        (error "TypeError: Assignment to constant variable")))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
@@ -78,30 +75,30 @@
                 (alexandria:switch (operator :test 'eq)
                     ;; Basic arithmetic operators
                     ;; Plus has unique behavior when string is involved
-                    (:PlusBop (js-plus (expr-eval left) (expr-eval right)))
+                    (:PlusBop (js-plus (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; -, *, and / all should just convert to number then evaluate
-                    (:MinusBop (js-minus (expr-eval left) (expr-eval right)))
-                    (:TimesBop (js-times (expr-eval left) (expr-eval right)))
-                    (:DivBop (js-div (expr-eval left) (expr-eval right)))
+                    (:MinusBop (js-minus (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:TimesBop (js-times (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:DivBop (js-div (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; Inequality operators
-                    (:LtBop (js-lt (expr-eval left) (expr-eval right)))
-                    (:LteBop (js-lte (expr-eval left) (expr-eval right)))
-                    (:GtBop (js-gt (expr-eval left) (expr-eval right)))
-                    (:GteBop (js-gte (expr-eval left) (expr-eval right)))
+                    (:LtBop (js-lt (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:LteBop (js-lte (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:GtBop (js-gt (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:GteBop (js-gte (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; Equality operators
-                    (:EqBop (js-eq (expr-eval left) (expr-eval right)))
-                    (:StrEqBop (js-streq (expr-eval left) (expr-eval right)))
-                    (:InEqBop `(:BoolVal ,(not (second (js-eq (expr-eval left) (expr-eval right))))))
-                    (:StrInEqBop `(:BoolVal ,(not (second (js-streq (expr-eval left) (expr-eval right))))))
+                    (:EqBop (js-eq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:StrEqBop (js-streq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:InEqBop `(:BoolVal ,(not (second (js-eq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
+                    (:StrInEqBop `(:BoolVal ,(not (second (js-streq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
                     ;; Logical operators
                     (:LogOrBop
                         (let ((first-operand (expr-eval left)))
-                            (if (second (to-bool first-operand))
+                            (if (second (to-bool (resolve-reference first-operand)))
                                 first-operand
                                 (expr-eval right))))
                     (:LogAndBop
                         (let ((first-operand (expr-eval left)))
-                            (if (second (to-bool first-operand))
+                            (if (second (to-bool (resolve-reference first-operand)))
                                 (expr-eval right)
                                 first-operand))))))
         ;; Prefix operators
@@ -115,14 +112,11 @@
                     (:PosUop (js-abs (expr-eval operand)))
                     (:BangUop (js-not (expr-eval operand)))
                     (:IncUop 
-                        (let* 
-                            ;; Calculate new operand value
-                            ((operand-as-num (to-num (expr-eval operand)))
-                             (op-result (js-plus operand-as-num '(:NumVal 1))))
-                            ;; Update reference and return
-                            (progn 
-                                (stmt-eval `(:GenericAssign ,operand ,op-result))
-                                op-result)))
+                        (let ((operandval (expr-eval operand)))
+                            ;; Check if incrementing reference
+                            (if (eq (first operandval) :RefVal)
+                                (set-heap operandval (js-plus '(:NumVal 1) (to-num (resolve-reference operandval))))
+                                (error "ReferenceError: Invalid right-hand side expression in prefix operation"))))
                     (:DecUop 
                         (let* 
                             ;; Calculate new operand value
@@ -181,7 +175,9 @@
                 (if var-val
                     (val-eval var-val) 
                     (error (format nil "ReferenceError: ~A is not defined~%" (second val))))))
-        ;; If RefVal, get value it points to
-        (:RefVal
-            (get-heap val))
+        (t val)))
+
+(defun resolve-reference (val)
+    (alexandria:switch ((first val) :test 'eq)
+        (:RefVal (get-heap val))
         (t val)))
