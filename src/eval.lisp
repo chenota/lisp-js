@@ -161,6 +161,45 @@
                 (if (second (to-bool (resolve-reference (expr-eval test))))
                     (expr-eval pass)
                     (expr-eval fail))))
+        ;; List
+        (:ListExpr
+            (destructuring-bind 
+                (_ vals)
+                expr 
+                (declare (ignore _))
+                `(:ObjRef 
+                    ,(second 
+                        (push-heap 
+                            `(:ListObj 
+                                ,(mapcar 
+                                    (lambda (x) (push-heap (resolve-reference (expr-eval x)))) 
+                                    vals)))))))
+        ;; Index
+        (:IdxExpr 
+            (destructuring-bind
+                (_ left idx)
+                expr 
+                (declare (ignore _))
+                (let*
+                    ;; Evaluate arguments
+                    ((idxval (to-num (resolve-reference (expr-eval idx))))
+                     (leftval (resolve-reference (expr-eval left)))
+                     (leftobj (resolve-object leftval)))
+                    ;; Do a bunch of checks then return
+                    (if 
+                        (and  
+                            ;; List being indexed?
+                            (eq (first leftobj) :ListObj)
+                            ;; Not indexing w/ NaN?
+                            (not (eq (second idxval) :NaN))
+                            ;; Index >= 0?
+                            (>= (second idxval) 0)
+                            ;; Index < len(list)?
+                            (< (second idxval) (length (second leftobj))))
+                        ;; If all pass, index is valid so get value
+                        (nth (floor (second idxval)) (second leftobj))
+                        ;; Invalid index; return undefined
+                        '(:UndefVal nil)))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))
 
@@ -179,4 +218,15 @@
 (defun resolve-reference (val)
     (alexandria:switch ((first val) :test 'eq)
         (:RefVal (get-heap val))
+        (t val)))
+
+(defun resolve-object (val)
+    (alexandria:switch ((first val) :test 'eq)
+        (:ObjRef (get-heap val))
+        (t val)))
+
+(defun resolve-all (val)
+    (alexandria:switch ((first val) :test 'eq)
+        (:RefVal (get-heap val))
+        (:ObjRef (get-heap val))
         (t val)))

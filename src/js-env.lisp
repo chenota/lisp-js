@@ -55,13 +55,15 @@
 
 (defun push-heap (value)
     (progn 
-        (setf *heap* (cons value *heap*))
+        (setf *heap* (nconc *heap* (list value)))
         `(:RefVal ,(- (length *heap*) 1))))
 
 (defun get-heap (ref)
     (if 
         (and 
-            (eq (first ref) :RefVal)
+            (or 
+                (eq (first ref) :RefVal)
+                (eq (first ref) :ObjRef))
             (>= (second ref) 0)
             (< (second ref) (length *heap*)))
         (nth (second ref) *heap*)
