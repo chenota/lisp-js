@@ -51,6 +51,26 @@
         *stack*
         :initial-value nil))
 
+(defun compress-stack nil 
+    (reverse
+        (caar
+            (reduce 
+                ;; New is a conscell (name, value), acc is a conscell of (frame, namelist)
+                (lambda (acc new)
+                    (if  
+                        ;; Check if variable has already been added to frame (already in namelist)
+                        (member (car new) (cdr acc))
+                        ;; If already found, ignore
+                        acc
+                        ;; If not found, add to compressed frame and namelist
+                        (cons (cons new (car acc)) (cons (car new) (cdr acc)))))
+                *stack* 
+                :initial-value (cons nil nil)))))
+
+(defun push-new-frame (frame)
+    (setq *stack* 
+        (cons frame *stack*)))
+
 (defparameter *heap* nil)
 
 (defun push-heap (value)
