@@ -11,8 +11,6 @@
         ((tokens 
               ;; Comments
             '(("//.*\\n" nil)
-              ;; Printing
-              ("console\\.log" :PRINT)
               ;; Strings
               ("(\\x22)[^\\x22]*(\\x22)" :STRING)
               ("(\\x27)[^\\x27]*(\\x27)" :STRING)
@@ -95,6 +93,7 @@
               ("in" :IN)
               ("NaN" :NAN)
               ("null" :NULL)
+              ("print" :PRINT)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers
