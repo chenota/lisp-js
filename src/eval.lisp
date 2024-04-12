@@ -15,7 +15,11 @@
                 ;; Eval each statement in list
                 ;; basically reduce just goes through everything and returns final result
                 (reduce 
-                    (lambda (acc new) (stmt-eval new))
+                    (lambda (acc new) 
+                        ;; Stop executing if find RETURN wrapper
+                        (if (eq (first acc) :RETURN)
+                            acc 
+                            (stmt-eval new)))
                     args 
                     ;; Initialize w/ undefined just to be safe
                     :initial-value '(:UndefVal nil))))
@@ -57,6 +61,27 @@
                             (set-heap lval (resolve-reference (expr-eval right)))
                             lval)
                         (error "TypeError: Assignment to constant variable")))))
+        (:Block
+            ;; Extract parts of block 
+            (destructuring-bind
+                (_ body)
+                stmt 
+                (declare (ignore _))
+                (progn
+                    ;; New scope 
+                    (push-empty-frame)
+                    ;; Evaluate, capture result
+                    (let ((eval-result (stmt-eval body)))
+                        ;; Pop scope
+                        (pop-frame)
+                        ;; Return
+                        eval-result))))
+        (:ReturnStmt
+            (destructuring-bind  
+                (_ body)
+                stmt 
+                (declare (ignore _))
+                `(:RETURN ,(expr-eval body))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
@@ -200,6 +225,56 @@
                         (nth (floor (second idxval)) (second leftobj))
                         ;; Invalid index; return undefined
                         '(:UndefVal nil)))))
+        ;; Function definition
+        (:FuncExpr
+            (destructuring-bind  
+                (_ name params body)
+                expr 
+                (declare (ignore _))
+                ;; Change FuncExpr to ClosureVal and also add all accessible variables
+                `(:ClosureVal ,name ,params ,body ,(compress-stack))))
+        ;; Function call
+        (:CallExpr
+            (destructuring-bind
+                (_ value args)
+                expr
+                (declare (ignore _))
+                (let ((closval (resolve-reference (expr-eval value))))
+                    (if (eq (first closval) :ClosureVal)
+                        (destructuring-bind 
+                            (_ name params body env)
+                            closval
+                            (declare (ignore _))
+                            (progn
+                                ;; Push closure env to stack 
+                                (push-frame env)
+                                ;; Try to fill all params
+                                (loop for param in params do  
+                                    ;; Check if args left
+                                    (if args 
+                                        ;; If args left...
+                                        (progn 
+                                            ;; Push new value associated w/ argument
+                                            (push-to-current-frame param (push-heap (resolve-reference (expr-eval (car args)))))
+                                            ;; Update args list
+                                            (setq args (cdr args)))
+                                        ;; If not, return undefined
+                                        (push-to-current-frame param '(:UndefVal nil))))
+                                ;; Add fn name to env as const if exists
+                                (if name 
+                                    (push-to-current-frame name closval)
+                                    nil)
+                                ;; Finally, execute function body, pop stack, sanity check value
+                                (let ((exec-result (stmt-eval body)))
+                                    ;; Pop stack
+                                    (pop-frame)
+                                    ;; Block functions must return
+                                    (if (eq (first body) :Block)
+                                        (if (eq (first exec-result) :RETURN)
+                                            (second exec-result)
+                                            '(:UndefVal nil))
+                                        exec-result))))
+                        (error (format nil "TypeError: ~A is not a function" closval))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))
 
@@ -213,20 +288,26 @@
                 (if var-val
                     (val-eval var-val) 
                     (error (format nil "ReferenceError: ~A is not defined~%" (second val))))))
+        ;; Sanity check: RETURN should never show up here
+        (:RETURN
+            (error "SyntaxError: Illegal return"))
         (t val)))
 
 (defun resolve-reference (val)
     (alexandria:switch ((first val) :test 'eq)
         (:RefVal (get-heap val))
+        (:RETURN (error "SyntaxError: Illegal return"))
         (t val)))
 
 (defun resolve-object (val)
     (alexandria:switch ((first val) :test 'eq)
         (:ObjRef (get-heap val))
+        (:RETURN (error "SyntaxError: Illegal return"))
         (t val)))
 
 (defun resolve-all (val)
     (alexandria:switch ((first val) :test 'eq)
         (:RefVal (get-heap val))
         (:ObjRef (get-heap val))
+        (:RETURN (error "SyntaxError: Illegal return"))
         (t val)))

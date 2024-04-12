@@ -2,20 +2,8 @@
 
 (in-package :lisp-js)
 
-(defparameter *stack* (list (cons nil 1)))
-
 ;; Push a new empty frame onto stack
-(defun push-empty-frame (&key reset-frame-num) 
-    (setq 
-        *stack* 
-        (cons 
-            (cons 
-                nil 
-                ;; Reset frame num back to one if specified
-                (if reset-frame-num
-                    1
-                    (+ 1 (cdar *stack*))))
-            *stack*)))
+(defparameter *stack* '(nil))
 
 ;; Pop frame off of stack
 (defun pop-frame nil 
@@ -25,12 +13,12 @@
 
 ;; Push variable onto current stack frame
 (defun push-to-current-frame (name value)
-    (setf (caar *stack*)
+    (setf (first *stack*)
         (cons 
             ;; New conscell associating name to value
             (cons name value) 
             ;; Cons new key-value onto first stack frame
-            (caar *stack*))))
+            (first *stack*))))
 
 ;; Search a single stack frame
 (defun search-frame (frame name)
@@ -42,7 +30,7 @@
                     (equal (car new-var) name))
                 (cdr new-var)
                 acc))
-        (car frame) 
+        frame 
         :initial-value nil))
 
 (defun search-current-frame (name)
@@ -62,37 +50,36 @@
 
 ;; Compress whole stack into one frame, remove duplicate variables
 (defun compress-stack (&key frame-num) 
-    (cons 
-        ;; Variable list
-        (first (reduce 
-            (lambda (compressed-stack new-frame)
-                (let 
-                    ((frame-vars 
-                        (reduce
-                            (lambda (compressed-frame new-var)
-                                (if  
-                                    ;; Check if variable already in stack
-                                    (member (car new-var) (cdr compressed-stack) :test 'string=)
-                                    ;; If so don't do anything
-                                    compressed-frame 
-                                    ;; If not, add to compressed frame
-                                    (cons new-var compressed-frame)))
-                            ;; Only care about var list, not frame no.
-                            (car new-frame)
-                            :initial-value nil)))
-                    ;; Update compressed stack w/ new variables
-                    (cons 
-                        ;; New variables on stack
-                        (append frame-vars (car compressed-stack)) 
-                        ;; Store new variable names so don't pull again
-                        (reduce (lambda (new acc) (cons (first new) acc)) frame-vars :initial-value (cdr compressed-stack)))))
-            *stack*
-            :initial-value (cons nil nil)))
-        ;; Frame number, return one if not specified
-        (if frame-num frame-num 1)))
+    ;; Variable list
+    (first (reduce 
+        (lambda (compressed-stack new-frame)
+            (let 
+                ((frame-vars 
+                    (reduce
+                        (lambda (compressed-frame new-var)
+                            (if  
+                                ;; Check if variable already in stack
+                                (member (car new-var) (cdr compressed-stack) :test 'string=)
+                                ;; If so don't do anything
+                                compressed-frame 
+                                ;; If not, add to compressed frame
+                                (cons new-var compressed-frame)))
+                        new-frame
+                        :initial-value nil)))
+                ;; Update compressed stack w/ new variables
+                (cons 
+                    ;; New variables on stack
+                    (append frame-vars (car compressed-stack)) 
+                    ;; Store new variable names so don't pull again
+                    (reduce (lambda (acc new) (cons (first new) acc)) frame-vars :initial-value (cdr compressed-stack)))))
+        *stack*
+        :initial-value (cons nil nil))))
 
 (defun push-frame (frame)
     (setq *stack* (cons frame *stack*)))
+
+(defun push-empty-frame nil
+    (setq *stack* (cons nil *stack*)))
 
 (defparameter *heap* nil)
 

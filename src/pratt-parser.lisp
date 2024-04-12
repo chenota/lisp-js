@@ -87,7 +87,7 @@
         ;; Logical OR
         (:LOGOR (values 20 21))
         ;; Assignment (right-associative)
-        (:ASSIGN (values 3 3))
+        (:ASSIGN (values 17 16))
         (:ASPLUS (values 3 3))
         (:ASMINUS (values 3 3))
         (:ASEXPONENT (values 3 3))
@@ -115,8 +115,6 @@
         (:SEMICOLON (values 2 1))
         ;; Comma
         (:COMMA (values 9 8))
-        ;; Arrow
-        (:ARROW (values 11 10))
         ;; Colon
         (:COLON (values 7 6))
         (:INCREMENT (values 100 100))
