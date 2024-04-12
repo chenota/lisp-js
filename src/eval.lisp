@@ -232,15 +232,15 @@
                 expr 
                 (declare (ignore _))
                 ;; Change FuncExpr to ClosureVal and also add all accessible variables
-                `(:ClosureVal ,name ,params ,body ,(compress-stack))))
+                `(:ObjRef ,(second (push-heap `(:ClosureObj ,name ,params ,body ,(compress-stack)))))))
         ;; Function call
         (:CallExpr
             (destructuring-bind
                 (_ value args)
                 expr
                 (declare (ignore _))
-                (let ((closval (resolve-reference (expr-eval value))))
-                    (if (eq (first closval) :ClosureVal)
+                (let ((closval (resolve-object (resolve-reference (expr-eval value)))))
+                    (if (eq (first closval) :ClosureObj)
                         (destructuring-bind 
                             (_ name params body env)
                             closval
