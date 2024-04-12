@@ -114,6 +114,17 @@
                         (pop-frame)
                         ;; Return last value
                         last-value))))
+        (:WhileStmt
+            (destructuring-bind  
+                (_ test body)
+                stmt 
+                (declare (ignore _))
+                (let ((last-value '(:UndefVal nil)))
+                    ;; Check condition before looping
+                    (loop while (second (to-bool (resolve-reference (expr-eval test)))) do 
+                        (setq last-value (resolve-reference (stmt-eval body))))
+                    ;; Return last value
+                    last-value)))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
