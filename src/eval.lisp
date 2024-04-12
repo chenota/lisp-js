@@ -95,6 +95,25 @@
                     (if else-blk
                         (stmt-eval else-blk)
                         '(:UndefVal nil)))))
+        (:ForStmt
+            (destructuring-bind
+                (_ init test after body)
+                stmt
+                (declare (ignore _))
+                (progn 
+                    ;; New scope b/c init could possibly create new variable
+                    (push-empty-frame)
+                    ;; Eval given statement
+                    (stmt-eval init)
+                    ;; Run loop
+                    (let ((last-value '(:UndefVal nil)))
+                        (loop while (second (to-bool (resolve-reference (expr-eval test)))) do 
+                            (setq last-value (resolve-reference (stmt-eval body)))
+                            (expr-eval after))
+                        ;; Pop stack
+                        (pop-frame)
+                        ;; Return last value
+                        last-value))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 

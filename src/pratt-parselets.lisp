@@ -281,16 +281,16 @@
             (conds new-token-stream)
             (parse-parens (cdr token-stream))
             ;; Check if get semicolon list
-            (if (and (eq (car conds) :STMTLIST) (= (length (cadr conds)) 3))
+            (if (and (eq (car conds) :STMTLIST) (= (length conds) 4))
                 ;; If so, move on and parse the rest
                 (multiple-value-bind 
                     (right newer-token-stream)
                     (expr-bp new-token-stream 3)
                     (values
-                        `(:ForStmt ,@(cadr conds) ,right)
+                        `(:ForStmt ,(second conds) ,(third conds) ,(fourth conds) ,right)
                         newer-token-stream))
                 ;; Error: Must have STMT
-                (error (format nil "Error: Must have three statements in FOR loop"))))
+                (error (format nil "Error: Must have three statements in FOR loop~A~%" conds))))
     ;; Otherwise, error
     (error (format nil "Error: A for loop must be followed by an LPAREN token"))))
 
