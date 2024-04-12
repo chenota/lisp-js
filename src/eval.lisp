@@ -82,6 +82,19 @@
                 stmt 
                 (declare (ignore _))
                 `(:RETURN ,(expr-eval body))))
+        (:IfStmt
+            (destructuring-bind
+                (_ test if-blk else-blk)
+                stmt 
+                (declare (ignore _))
+                ;; Run the test
+                (if (second (to-bool (resolve-reference (expr-eval test))))
+                    ;; Run if-blk if true
+                    (stmt-eval if-blk)
+                    ;; Check if else exists then run if false
+                    (if else-blk
+                        (stmt-eval else-blk)
+                        '(:UndefVal nil)))))
         ;; If all fail, eval as expr
         (t (expr-eval stmt))))
 
