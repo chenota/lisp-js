@@ -240,41 +240,49 @@
                 expr
                 (declare (ignore _))
                 (let ((closval (resolve-object (resolve-reference (expr-eval value)))))
-                    (if (eq (first closval) :ClosureObj)
-                        (destructuring-bind 
-                            (_ name params body env)
-                            closval
-                            (declare (ignore _))
-                            (progn
-                                ;; Push closure env to stack 
-                                (push-frame env)
-                                ;; Try to fill all params
-                                (loop for param in params do  
-                                    ;; Check if args left
-                                    (if args 
-                                        ;; If args left...
-                                        (progn 
-                                            ;; Push new value associated w/ argument
-                                            (push-to-current-frame param (push-heap (resolve-reference (expr-eval (car args)))))
-                                            ;; Update args list
-                                            (setq args (cdr args)))
-                                        ;; If not, return undefined
-                                        (push-to-current-frame param '(:UndefVal nil))))
-                                ;; Add fn name to env as const if exists
-                                (if name 
-                                    (push-to-current-frame name closval)
-                                    nil)
-                                ;; Finally, execute function body, pop stack, sanity check value
-                                (let ((exec-result (stmt-eval body)))
-                                    ;; Pop stack
-                                    (pop-frame)
-                                    ;; Block functions must return
-                                    (if (eq (first body) :Block)
-                                        (if (eq (first exec-result) :RETURN)
-                                            (second exec-result)
-                                            '(:UndefVal nil))
-                                        exec-result))))
-                        (error (format nil "TypeError: ~A is not a function" closval))))))
+                    (alexandria:switch ((first closval) :test 'eq)
+                        ;; User-defined function
+                        (:ClosureObj
+                            (destructuring-bind 
+                                (_ name params body env)
+                                closval
+                                (declare (ignore _))
+                                (progn
+                                    ;; Push closure env to stack 
+                                    (push-frame env)
+                                    ;; Try to fill all params
+                                    (loop for param in params do  
+                                        ;; Check if args left
+                                        (if args 
+                                            ;; If args left...
+                                            (progn 
+                                                ;; Push new value associated w/ argument
+                                                (push-to-current-frame param (push-heap (resolve-reference (expr-eval (car args)))))
+                                                ;; Update args list
+                                                (setq args (cdr args)))
+                                            ;; If not, return undefined
+                                            (push-to-current-frame param '(:UndefVal nil))))
+                                    ;; Add fn name to env as const if exists
+                                    (if name 
+                                        (push-to-current-frame name closval)
+                                        nil)
+                                    ;; Finally, execute function body, pop stack, sanity check value
+                                    (let ((exec-result (stmt-eval body)))
+                                        ;; Pop stack
+                                        (pop-frame)
+                                        ;; Block functions must return
+                                        (if (eq (first body) :Block)
+                                            (if (eq (first exec-result) :RETURN)
+                                                (second exec-result)
+                                                '(:UndefVal nil))
+                                            exec-result)))))
+                        ;; Print fn prints all arguments
+                        (:PrintFn
+                            (progn 
+                                (loop for x in args do 
+                                    (format t "~A~%" (second (to-str (resolve-reference (expr-eval x))))))
+                                '(:UndefVal nil)))
+                        (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))
 
