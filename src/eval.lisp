@@ -34,7 +34,7 @@
                 (if 
                     (search-current-frame (second ident))
                     ;; If so, throw error
-                    (error (format nil "SyntaxError: Identifier '~A' has already been declared~%" (second ident)))
+                    (error (format nil "SyntaxError: Identifier '~A' has already been declared" (second ident)))
                     ;; Otherwise, good to go
                     (progn 
                         ;; Check if let or const
@@ -417,7 +417,7 @@
             (let ((var-val (search-stack (second val))))
                 (if var-val
                     (val-eval var-val) 
-                    (error (format nil "ReferenceError: ~A is not defined~%" (second val))))))
+                    (error (format nil "ReferenceError: ~A is not defined" (second val))))))
         ;; Sanity check: RETURN should never show up here
         (:RETURN
             (error "SyntaxError: Illegal return"))

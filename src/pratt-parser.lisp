@@ -122,7 +122,7 @@
         (:DOT (values 101 102))
         (:INCREMENT (values 100 100))
         (:DECREMENT (values 100 100))
-        (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of infix bp map with token ~A" token)))))
 
 
 ;; Binding power for prefix operations
@@ -139,7 +139,7 @@
             (:BITNOT (values nil prefix-power))
             (:PLUS (values nil prefix-power))
             (:MINUS (values nil prefix-power))
-            (t (error (format nil "Error: Reached end of prefix bp map with token ~A~%" token))))))
+            (t (error (format nil "ParserError: Reached end of prefix bp map with token ~A" token))))))
 
 ;; Binding power for postfix operations
 (defun postfix-binding-power (token)
@@ -148,4 +148,4 @@
         (alexandria:switch ((first token) :test 'eq)
             (:INCREMENT (values nil postfix-power))
             (:DECREMENT (values nil postfix-power))
-            (t (error (format nil "Error: Reached end of postfix bp map with token ~A~%" token))))))
+            (t (error (format nil "ParserError: Reached end of postfix bp map with token ~A" token))))))

@@ -10,7 +10,7 @@
         (lambda (new acc)
             (if (eq (car new) :IdentVal)
                 (cons (cadr new) acc)
-                (error (format nil "Error: Extract-ident-str expected IDENTVAL, got ~A~%" new))))
+                (error (format nil "ParserError: Extract-ident-str expected IDENTVAL, got ~A" new))))
         identlist
         :initial-value nil 
         :from-end t))
@@ -23,7 +23,7 @@
         (:STRING :StrVal)
         (:IDENTIFIER :IdentVal)
         (:PRINT :PrintFn)
-        (t (error (format nil "Error: Reached end of primitive map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
 (defun parse-primitive (token-stream)
@@ -56,7 +56,7 @@
         (:BANG :BangUop)
         (:INCREMENT :IncUop)
         (:DECREMENT :DecUop)
-        (t (error (format nil "Error: Reached end of uop map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of uop map with token ~A" token)))))
 
 ;; Parselet for infix negative
 (defun parse-prefix-operator (token-stream)
@@ -233,8 +233,7 @@
                 (values 
                     `(:AssignStmt nil ,right (:UndefVal nil))
                 new-token-stream))
-            ;;(t (error "Error: A let must be followed by a generic assign or an identifier"))
-            (t (error (format nil "~A~%" right))))))
+            (t (error "ParserError: A let must be followed by a generic assign or an identifier")))))
 
 (defun parse-return (token-stream)
     ;; Parse the stream after the return keyword
@@ -285,7 +284,7 @@
                             `(:IfStmt ,inparens ,if-blk nil)
                             newer-token-stream))))
             ;; Otherwise, error
-            (error (format nil "Error: Expected LPAREN after IF keyword, got ~A~%" (caar token-stream))))))
+            (error (format nil "ParserError: Expected LPAREN after IF keyword, got ~A" (caar token-stream))))))
 
 (defun parse-for (token-stream)
     ;; Check for lparen next in token-stream
@@ -304,9 +303,9 @@
                         `(:ForStmt ,(second conds) ,(third conds) ,(fourth conds) ,right)
                         newer-token-stream))
                 ;; Error: Must have STMT
-                (error (format nil "Error: Must have three statements in FOR loop~A~%" conds))))
+                (error (format nil "ParserError: Must have three statements in FOR loop~A" conds))))
     ;; Otherwise, error
-    (error (format nil "Error: A for loop must be followed by an LPAREN token"))))
+    (error (format nil "ParserError: A for loop must be followed by an LPAREN token"))))
 
 (defun parse-while (token-stream)
     ;; Check for lparen next in token-stream
@@ -357,7 +356,7 @@
         (:PRINT 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
-        (t (error (format nil "Error: Reached end of null denotations map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of null denotations map with token ~A" token)))))
 
 ;; Return the Bop identifier associated with each token type
 (defun get-bop (token)
@@ -383,7 +382,7 @@
         (:STREQ :StrEqBop)
         (:INEQ :InEqBop)
         (:STRINEQ :StrInEqBop)
-        (t (error (format nil "Error: Reached end of infix operators map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of infix operators map with token ~A" token)))))
 
 ;; Generic parse infix operator function
 (defun parse-infix-operator (token-stream left)
@@ -466,7 +465,7 @@
 (defun get-assign-op (token)
     (alexandria:switch ((first token) :test 'eq)
         (:ASSIGN :GenericAssign)
-        (t (error (format nil "Error: Reached end of infix operators map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of infix operators map with token ~A" token)))))
 
 ;; Generic parse assignment operator function
 (defun parse-assign-operator (token-stream left)
@@ -524,7 +523,7 @@
     (alexandria:switch ((first token) :test 'eq)
         (:INCREMENT :IncUop)
         (:DECREMENT :DecUop)
-        (t (error (format nil "Error: Reached end of postfix operator map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of postfix operator map with token ~A" token)))))
 
 (defun parse-postfix-operator (token-stream left)
     (values 
@@ -552,7 +551,7 @@
                         `(:TernExpr ,left ,if-true ,if-false)
                         newer-token-stream))
                 ;; Otherwise, error
-                (error (format nil "Error: ternary expression requires a :~A~%" new-token-stream))))))
+                (error (format nil "ParserError: ternary expression requires a :~A" new-token-stream))))))
 
 (defun parse-dot (token-stream left)
     ;; Get binding powers of dot
@@ -608,4 +607,4 @@
         (:DECREMENT 'parse-postfix-operator)
         (:TERNARY 'parse-ternary)
         (:DOT 'parse-dot)
-        (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))
+        (t (error (format nil "ParserError: Reached end of left denotations map with token ~A" token)))))
