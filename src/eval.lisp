@@ -238,11 +238,26 @@
                 `(:ObjRef 
                     ,(second 
                         (push-heap 
-                            `(:ListObj 
+                            `(:ObjVal
+                                ,(let ((index -1)) 
+                                    (mapcar 
+                                        (lambda (x) (incf index) 
+                                            (cons (to-str `(:NumVal ,index)) (push-heap (resolve-reference (expr-eval x))))) 
+                                        vals))))))))
+        ;; Generic object
+        (:ObjExpr
+            (destructuring-bind
+                (_ vals)
+                expr 
+                (declare (ignore _))
+                `(:ObjRef
+                    ,(second
+                        (push-heap
+                            `(:ObjVal
                                 ,(mapcar 
-                                    (lambda (x) (push-heap (resolve-reference (expr-eval x)))) 
+                                    (lambda (x) 
+                                        (cons (to-str (car x)) (push-heap (resolve-reference (expr-eval (cdr x))))))
                                     vals)))))))
-        ;; Index
         (:IdxExpr 
             (destructuring-bind
                 (_ left idx)
@@ -250,24 +265,40 @@
                 (declare (ignore _))
                 (let*
                     ;; Evaluate arguments
-                    ((idxval (to-num (resolve-reference (expr-eval idx))))
+                    ((idxval (resolve-reference (expr-eval idx)))
                      (leftval (resolve-reference (expr-eval left)))
                      (leftobj (resolve-object leftval)))
-                    ;; Do a bunch of checks then return
-                    (if 
-                        (and  
-                            ;; List being indexed?
-                            (eq (first leftobj) :ListObj)
-                            ;; Not indexing w/ NaN?
-                            (not (eq (second idxval) :NaN))
-                            ;; Index >= 0?
-                            (>= (second idxval) 0)
-                            ;; Index < len(list)?
-                            (< (second idxval) (length (second leftobj))))
-                        ;; If all pass, index is valid so get value
-                        (nth (floor (second idxval)) (second leftobj))
-                        ;; Invalid index; return undefined
-                        '(:UndefVal nil)))))
+                    (alexandria:switch ((first leftobj) :test 'eq)
+                        (:ObjVal 
+                            (let ((accval (to-str idxval)))
+                                (reduce
+                                    (lambda (acc new)
+                                        (if (second (js-streq (car new) accval))
+                                            (cdr new)
+                                            acc))
+                                    (second leftobj)
+                                    :initial-value '(:UndefVal nil))))
+                        (t '(:UndefVal nil))))))
+        (:DotExpr
+            (destructuring-bind
+                (_ left idx)
+                expr 
+                (declare (ignore _))
+                (let*
+                    ;; Evaluate arguments
+                    ((leftval (resolve-reference (expr-eval left)))
+                     (leftobj (resolve-object leftval)))
+                    (alexandria:switch ((first leftobj) :test 'eq)
+                        (:ObjVal 
+                            (let ((accval `(:StrVal ,idx)))
+                                (reduce
+                                    (lambda (acc new)
+                                        (if (second (js-streq (car new) accval))
+                                            (cdr new)
+                                            acc))
+                                    (second leftobj)
+                                    :initial-value '(:UndefVal nil))))
+                        (t '(:UndefVal nil))))))
         ;; Function definition
         (:FuncExpr
             (destructuring-bind  

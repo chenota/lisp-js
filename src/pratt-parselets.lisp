@@ -170,10 +170,10 @@
                                 (and 
                                     (eq (first new) :ColonExpr)
                                     (eq (first acc) :ObjExpr))
-                                `(:ObjExpr ,@(cons (cons (second new) (third new)) (cdr acc)))
+                                `(:ObjExpr ,(cons (cons (second new) (third new)) (second acc)))
                                 `(:Block ,right)))
                         (second right)
-                        :initial-value '(:ObjExpr))
+                        :initial-value '(:ObjExpr nil))
                     ;; Normal if not commalist
                     `(:Block ,right))
                 (cdr new-token-stream)))))

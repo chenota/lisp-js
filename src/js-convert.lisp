@@ -49,6 +49,7 @@
             (:BoolVal (if (second value) "true" "false"))
             (:UndefVal "undefined")
             (:NullVal "null")
+            (:IdentVal (second value))
             (t (error (format t "Error: At end of to-str function with value ~%~A" value))))))
 
 (defun to-num (value)
