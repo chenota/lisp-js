@@ -160,8 +160,22 @@
                 (error "No closing bracket!")
                 nil)
             ;; Return parsed expr, bump past rbracket in new token stream
-            (values 
-                `(:Block ,right)
+            (values
+                ;; Since 'block' of colonexprs is actually an object, check for that condition here
+                (if (eq (first right) :CommaList)
+                    ;; Attempt to parse as object
+                    (reduce 
+                        (lambda (acc new)
+                            (if 
+                                (and 
+                                    (eq (first new) :ColonExpr)
+                                    (eq (first acc) :ObjExpr))
+                                `(:ObjExpr ,@(cons (cons (second new) (third new)) (cdr acc)))
+                                `(:Block ,right)))
+                        (second right)
+                        :initial-value '(:ObjExpr))
+                    ;; Normal if not commalist
+                    `(:Block ,right))
                 (cdr new-token-stream)))))
 
 (defun parse-list (token-stream)
@@ -518,16 +532,38 @@
         (infix-binding-power (first token-stream))
         ;; Evaluate right side of ternary
         (multiple-value-bind
+            (if-true new-token-stream)
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Check if next token is a colon
+            (if (eq (caar new-token-stream) :Colon)
+                ;; Get if-false clause
+                (multiple-value-bind
+                    (if-false newer-token-stream)
+                    (expr-bp (cdr new-token-stream) (infix-binding-power (first token-stream)))
+                    ;; Extract right and left from colon operator as true/false
+                    (values 
+                        `(:TernExpr ,left ,if-true ,if-false)
+                        newer-token-stream))
+                ;; Otherwise, error
+                (error (format nil "Error: ternary expression requires a :~A~%" new-token-stream))))))
+
+(defun parse-dot (token-stream left)
+    ;; Get binding powers of dot
+    (multiple-value-bind
+        (l-bp r-bp)
+        (infix-binding-power (first token-stream))
+        ;; Eval right
+        (multiple-value-bind
             (right new-token-stream)
             (expr-bp (cdr token-stream) r-bp)
-            ;; Check if colonexpr after question mark
-            (if (eq (car right) :ColonExpr)
-                ;; Extract right and left from colon operator as true/false
+            ;; Check next token, make sure is identifier
+            (if (eq (car right) :IdentVal)
+                ;; Make DotExpr if valid
                 (values 
-                    `(:TernExpr ,left ,(cadr right) ,(caddr right))
+                    `(:DotExpr ,left ,(second right))
                     new-token-stream)
-                ;; Otherwise, error
-                (error (format nil "Error: ternary expression requires :~%"))))))
+                ;; Error if not identifier
+                (error (format nil "Error: A DOT must be followed by an identval"))))))
 
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
@@ -563,4 +599,5 @@
         (:INCREMENT 'parse-postfix-operator)
         (:DECREMENT 'parse-postfix-operator)
         (:TERNARY 'parse-ternary)
+        (:DOT 'parse-dot)
         (t (error (format nil "Error: Reached end of left denotations map with token ~A~%" token)))))

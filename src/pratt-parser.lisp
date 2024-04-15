@@ -102,7 +102,7 @@
         (:ASBITOR (values 3 3))
         (:ASLOGAND (values 3 3))
         (:ASLOGOR (values 3 3))
-        (:TERNARY (values 7 6)) ;; Ternary same as colon
+        (:TERNARY (values 10 11)) ;; Ternary same as colon
         (:ARROW (values 16 15))
         ;; Parenthesis/brackets
         (:LPAREN (values 100 1))
@@ -116,7 +116,9 @@
         ;; Comma
         (:COMMA (values 9 8))
         ;; Colon
-        (:COLON (values 7 6))
+        (:COLON (values 10 11))
+        ;; Dot
+        (:DOT (values 70 71))
         (:INCREMENT (values 100 100))
         (:DECREMENT (values 100 100))
         (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
