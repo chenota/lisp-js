@@ -102,7 +102,9 @@
 (defun set-heap (ref value)
     (if 
         (and 
-            (eq (first ref) :RefVal)
+            (or 
+                (eq (first ref) :RefVal)
+                (eq (first ref) :ObjRef))
             (>= (second ref) 0)
             (< (second ref) (length *heap*)))
         (setf (nth (second ref) *heap*) value)

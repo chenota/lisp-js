@@ -53,14 +53,62 @@
                 stmt 
                 (declare (ignore _))
                 ;; Attempt to get variable on lhs of operator
-                (let ((lval (expr-eval left)))
+                (let* ((lval (expr-eval left)))
                     ;; Check if left is a reference
                     (if (eq (first lval) :RefVal)
                         ;; Set heap reference to new value and return value it was set to
                         (progn 
                             (set-heap lval (resolve-reference (expr-eval right)))
                             lval)
-                        (error "TypeError: Assignment to constant variable")))))
+                        ;; If not refval, see if is idx or dot assignment
+                        (alexandria:switch ((first left) :test 'eq)
+                            (:IdxExpr
+                                ;; Get object being indexed
+                                (let ((lval-res (resolve-reference (expr-eval (second left))))
+                                      (rval (resolve-reference (expr-eval right))))
+                                    ;; make sure object being indexed is actually an object
+                                    (if (eq (first lval-res) :ObjRef)
+                                        (progn
+                                            ;; Update heap w/ new object
+                                            (set-heap
+                                                lval-res 
+                                                `(:ObjVal 
+                                                    ;; Cons new value onto existing object
+                                                    ,(cons
+                                                        ;; New value is conscell
+                                                        (cons 
+                                                            ;; Key is coerced into a string
+                                                            (to-str (resolve-reference (expr-eval (third left)))) 
+                                                            ;; Value is evaluated right side
+                                                            (push-heap rval))
+                                                        (second (get-heap lval-res)))))
+                                            rval)
+                                        ;; If not object, return right side and move on
+                                        (expr-eval right))))
+                            (:DotExpr 
+                                ;; Get object being indexed
+                                (let ((lval-res (resolve-reference (expr-eval (second left))))
+                                      (rval (resolve-reference (expr-eval right))))
+                                    ;; make sure object being indexed is actually an object
+                                    (if (eq (first lval-res) :ObjRef)
+                                        (progn 
+                                            ;; Update heap w/ new object
+                                            (set-heap
+                                                lval-res 
+                                                `(:ObjVal 
+                                                    ;; Cons new value onto existing object
+                                                    ,(cons
+                                                        ;; New value is conscell
+                                                        (cons 
+                                                            ;; Key is coerced into a string
+                                                            `(:StrVal ,(third left))
+                                                            ;; Value is evaluated right side
+                                                            (push-heap rval))
+                                                        (second (get-heap lval-res)))))
+                                            rval)
+                                        ;; If not object, throw a syntax error
+                                        (error (format nil "SyntaxError: Invalid or unexpected token ~A" lval-res)))))
+                            (t (error "TypeError: Assignment to constant variable")))))))
         (:Block
             ;; Extract parts of block 
             (destructuring-bind

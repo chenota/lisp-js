@@ -118,7 +118,7 @@
         ;; Colon
         (:COLON (values 10 11))
         ;; Dot
-        (:DOT (values 70 71))
+        (:DOT (values 101 102))
         (:INCREMENT (values 100 100))
         (:DECREMENT (values 100 100))
         (t (error (format nil "Error: Reached end of infix bp map with token ~A~%" token)))))
