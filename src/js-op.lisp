@@ -176,7 +176,7 @@
                     (js-eq (to-num left-val) right-val)
                     (if (eq (first right-val) :BoolVal)
                         (js-eq left-val (to-num right-val))
-                        ;; TODO: Add rules for objects
+                        ;; TODO: Add weird rules for objects and non-objects
                         ;; If nothing, return false
                         '(:BoolVal nil)))))))
 
@@ -190,5 +190,5 @@
             (:UndefVal t)
             (:StrVal (equal (second left-val) (second right-val)))
             (:BoolVal (eq (second left-val) (second right-val)))
-            ;; TODO: Add rules for comparing by identity
+            (:ObjRef (= (second left-val) (second right-val)))
             (t nil)))))
