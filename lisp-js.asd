@@ -1,10 +1,6 @@
 ;;;; lisp-js.asd
 
-(require :asdf)
-
-:build-operation "program-op" ;; leave as is
-:build-pathname "ljs.o"
-:entry-point "lisp-js:main"
+(require "asdf")
 
 (asdf:defsystem #:lisp-js
   :description "Interpreter for a subset of JavaScript"
@@ -12,6 +8,9 @@
   :license  "MIT"
   :version "0.0.1"
   :serial t
+  :entry-point "lisp-js:main"
+  :build-operation program-op
+  :build-pathname "ljs.o"
   :depends-on (#:cl-ppcre
                #:alexandria)
   :components ((:file "package")
