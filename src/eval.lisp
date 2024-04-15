@@ -404,6 +404,19 @@
                                 (loop for x in args do 
                                     (format t "~A~%" (second (to-str (resolve-reference (expr-eval x))))))
                                 '(:UndefVal nil)))
+                        (:ExitFn
+                            (if (first args)
+                                (sb-ext:exit :code (floor (second (to-num (resolve-reference (expr-eval (first args)))))))
+                                (sb-ext:exit :code 0)))
+                        (:InputFn
+                            (progn 
+                                ;; If given argument, print that first
+                                (if (first args)
+                                    (format t "~A" (second (to-str (resolve-reference (expr-eval (first args))))))
+                                    nil)
+                                (finish-output)
+                                ;; Get input, return as string
+                                `(:StrVal ,(read-line))))
                         (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))

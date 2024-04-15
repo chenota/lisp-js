@@ -90,10 +90,12 @@
               ("while" :WHILE)
               ("if" :IF)
               ("else" :ELSE)
+              ("input" :INPUT)
               ("in" :IN)
               ("NaN" :NAN)
               ("null" :NULL)
               ("print" :PRINT)
+              ("exit" :EXIT)  
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

@@ -23,6 +23,8 @@
         (:STRING :StrVal)
         (:IDENTIFIER :IdentVal)
         (:PRINT :PrintFn)
+        (:EXIT :ExitFn)
+        (:INPUT :InputFn)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
@@ -354,6 +356,8 @@
         (:FOR 'parse-for)
         (:WHILE 'parse-while)
         (:PRINT 'parse-primitive)
+        (:EXIT 'parse-primitive)
+        (:INPUT 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
         (t (error (format nil "ParserError: Reached end of null denotations map with token ~A" token)))))

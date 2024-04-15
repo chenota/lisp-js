@@ -3,7 +3,6 @@
 (in-package #:lisp-js)
 
 (defparameter *is-exit* nil)
-(defparameter *exit-code* 0)
 
 (defun eval-str (str)
     (stmt-eval (expr (tokenize-string str))))
