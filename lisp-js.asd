@@ -1,5 +1,11 @@
 ;;;; lisp-js.asd
 
+(require :asdf)
+
+:build-operation "program-op" ;; leave as is
+:build-pathname "ljs.o"
+:entry-point "lisp-js:main"
+
 (asdf:defsystem #:lisp-js
   :description "Interpreter for a subset of JavaScript"
   :author "Alex Chenot"

@@ -389,8 +389,9 @@
 (defun parse-infix-operator (token-stream left)
     ;; Get binding powers of infix operator
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of operator
         (multiple-value-bind
             (right new-token-stream)
@@ -405,8 +406,9 @@
 (defun parse-semicolon (token-stream left)
     ;; Get binding powers of semicolon
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of semicolon
         (multiple-value-bind
             (right new-token-stream)
@@ -422,8 +424,9 @@
 (defun parse-comma (token-stream left)
     ;; Get binding powers of comma
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of comma
         (multiple-value-bind
             (right new-token-stream)
@@ -469,8 +472,9 @@
 (defun parse-assign-operator (token-stream left)
     ;; Get binding powers of infix operator
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of operator
         (multiple-value-bind
             (right new-token-stream)
@@ -485,8 +489,9 @@
 (defun parse-arrow-func (token-stream left)
     ;; Get binding powers of arrow
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of arrow
         (multiple-value-bind 
             (right new-token-stream)
@@ -503,8 +508,9 @@
 (defun parse-colon (token-stream left)
     ;; Get binding powers of arrow
     (multiple-value-bind 
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of arrow
         (multiple-value-bind 
             (right new-token-stream)
@@ -528,8 +534,9 @@
 (defun parse-ternary (token-stream left)
     ;; Get binding powers of ternary
     (multiple-value-bind
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Evaluate right side of ternary
         (multiple-value-bind
             (if-true new-token-stream)
@@ -550,8 +557,9 @@
 (defun parse-dot (token-stream left)
     ;; Get binding powers of dot
     (multiple-value-bind
-        (l-bp r-bp)
+        (_ r-bp)
         (infix-binding-power (first token-stream))
+        (declare (ignore _))
         ;; Eval right
         (multiple-value-bind
             (right new-token-stream)

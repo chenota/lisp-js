@@ -1,4 +1,6 @@
 ;;;; package.lisp
 
 (defpackage #:lisp-js
-  (:use #:cl))
+  (:use #:cl #:alexandria #:cl-ppcre)
+  (:export 
+    #:main))

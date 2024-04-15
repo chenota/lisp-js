@@ -49,7 +49,7 @@
         :initial-value nil))
 
 ;; Compress whole stack into one frame, remove duplicate variables
-(defun compress-stack (&key frame-num) 
+(defun compress-stack nil 
     ;; Variable list
     (first (reduce 
         (lambda (compressed-stack new-frame)

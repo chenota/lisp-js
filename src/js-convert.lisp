@@ -60,7 +60,7 @@
             (:StrVal 
                 ;; Trim leading and lagging whitespace from string
                 (handler-case (token-str-to-num (string-trim '(#\Space #\Tab #\Newline) (second value)))
-                    (error (c) :NaN)))
+                    (error () :NaN)))
             (:BoolVal (if (second value) 1 0))
             (:UndefVal :NaN)
             (:NullVal 0)

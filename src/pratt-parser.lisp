@@ -32,8 +32,9 @@
                         (if (eq (first op) :EOF) (loop-finish) nil)
                         ;; Get left and right binding power of the op
                         (multiple-value-bind
-                            (l-bp r-bp)
+                            (l-bp _)
                             (infix-binding-power op)
+                            (declare (ignore _))
                             (progn 
                                 ;; If left binding power of op is less than minimum binding power,
                                 ;; break loop
