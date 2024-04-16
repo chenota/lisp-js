@@ -150,35 +150,43 @@
                 (error "Error: Expected LPAREN after function keyword")))))
 
 (defun parse-bracket (token-stream)
-     ;; Parse the stream after the opening bracket
-    (multiple-value-bind 
-        (right new-token-stream)
-        ;; Reset binding power back to one then evaluate
-        (expr-bp (cdr token-stream) 2)
-        ;; Check for errors
-        (progn 
-            (if 
-                (not (eq (caar new-token-stream) :RBRACKET))
-                (error "No closing bracket!")
-                nil)
-            ;; Return parsed expr, bump past rbracket in new token stream
-            (values
-                ;; Since 'block' of colonexprs is actually an object, check for that condition here
-                (if (eq (first right) :CommaList)
-                    ;; Attempt to parse as object
-                    (reduce 
-                        (lambda (acc new)
-                            (if 
-                                (and 
-                                    (eq (first new) :ColonExpr)
-                                    (eq (first acc) :ObjExpr))
-                                `(:ObjExpr ,(cons (cons (second new) (third new)) (second acc)))
-                                `(:Block ,right)))
-                        (second right)
-                        :initial-value '(:ObjExpr nil))
-                    ;; Normal if not commalist
-                    `(:Block ,right))
-                (cdr new-token-stream)))))
+    ;; Check for immediate closing bracket
+    (if (eq (first (second token-stream)) :RBRACKET)
+        (values 
+            `(:ObjExpr nil)
+            (cddr token-stream))
+        ;; Parse the stream after the opening bracket
+        (multiple-value-bind 
+            (right new-token-stream)
+            ;; Reset binding power back to one then evaluate
+            (expr-bp (cdr token-stream) 2)
+            ;; Check for errors
+            (progn 
+                (if 
+                    (not (eq (caar new-token-stream) :RBRACKET))
+                    (error "No closing bracket!")
+                    nil)
+                ;; Return parsed expr, bump past rbracket in new token stream
+                (values
+                    ;; Since 'block' of colonexprs is actually an object, check for that condition here
+                    (if (eq (first right) :CommaList)
+                        ;; Attempt to parse as object
+                        (reduce 
+                            (lambda (acc new)
+                                (if 
+                                    (and 
+                                        (eq (first new) :ColonExpr)
+                                        (eq (first acc) :ObjExpr))
+                                    `(:ObjExpr ,(cons (cons (second new) (third new)) (second acc)))
+                                    `(:Block ,right)))
+                            (second right)
+                            :initial-value '(:ObjExpr nil))
+                        ;; Check if just one colon
+                        (if (eq (first right) :ColonExpr)
+                            `(:ObjExpr ,(list (cons (second right) (third right))))
+                            ;; Normal if not commalist or colonexpr
+                            `(:Block ,right)))
+                    (cdr new-token-stream))))))
 
 (defun parse-list (token-stream)
     ;; Check if immediate closing bracket
