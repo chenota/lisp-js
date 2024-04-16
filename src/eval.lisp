@@ -404,8 +404,15 @@
                         ;; Print fn prints all arguments
                         (:PrintFn
                             (progn 
-                                (loop for x in args do 
-                                    (format t "~A~%" (second (to-str (resolve-reference (expr-eval x))))))
+                                (if args
+                                    (loop for x in args do 
+                                        ;; Get value to be printed
+                                        (let ((x-eval (resolve-reference (expr-eval x))))
+                                            ;; Pretty print if not a string
+                                            (if (eq (first x-eval) :StrVal)
+                                                (format t "~A~%" (second x-eval))
+                                                (format t "~A~%" (pretty-print x-eval)))))
+                                    (format t "~%"))
                                 '(:UndefVal nil)))
                         (:ExitFn
                             (if (first args)

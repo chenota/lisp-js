@@ -429,16 +429,23 @@
         (infix-binding-power (first token-stream))
         (declare (ignore _))
         ;; Evaluate right side of semicolon
-        (multiple-value-bind
-            (right new-token-stream)
-            (expr-bp (cdr token-stream) r-bp)
-            ;; Return new token stream and statement wrapper
-            (values
-                (if 
-                    (eq (car right) :STMTLIST)
-                    `(:STMTLIST ,left ,@(cdr right))
-                    `(:STMTLIST ,left ,right))
-                new-token-stream))))
+        (handler-case 
+            (multiple-value-bind
+                (right new-token-stream)
+                (expr-bp (cdr token-stream) r-bp)
+                ;; Return new token stream and statement wrapper
+                (values
+                    (if 
+                        (eq (car right) :STMTLIST)
+                        `(:STMTLIST ,left ,@(cdr right))
+                        `(:STMTLIST ,left ,right))
+                    new-token-stream))
+            ;; If error, return left and move on
+            (error 
+                ()
+                (values 
+                    left
+                    (cdr token-stream))))))
 
 (defun parse-comma (token-stream left)
     ;; Get binding powers of comma
