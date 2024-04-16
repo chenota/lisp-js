@@ -97,6 +97,9 @@
               ("print" :PRINT)
               ("exit" :EXIT)  
               ("typeof" :TYPEOF)
+              ("Number" :NUMBERFN)
+              ("Boolean" :BOOLEANFN)
+              ("String" :STRINGFN)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

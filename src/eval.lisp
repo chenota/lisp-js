@@ -420,6 +420,18 @@
                                 (finish-output)
                                 ;; Get input, return as string
                                 `(:StrVal ,(read-line))))
+                        (:NumberFn
+                            (if (first args)
+                                (to-num (resolve-reference (expr-eval (first args))))
+                                '(:NumVal 0)))
+                        (:StringFn
+                            (if (first args)
+                                (to-str (resolve-reference (expr-eval (first args))))
+                                '(:StrVal "")))
+                        (:BooleanFn
+                            (if (first args)
+                                (to-bool (resolve-reference (expr-eval (first args))))
+                                '(:BoolVal nil)))
                         (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))

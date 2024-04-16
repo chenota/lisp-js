@@ -25,6 +25,9 @@
         (:PRINT :PrintFn)
         (:EXIT :ExitFn)
         (:INPUT :InputFn)
+        (:NUMBERFN :NumberFn)
+        (:STRINGFN :StringFn)
+        (:BOOLEANFN :BooleanFn)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
@@ -367,6 +370,9 @@
         (:PRINT 'parse-primitive)
         (:EXIT 'parse-primitive)
         (:INPUT 'parse-primitive)
+        (:NUMBERFN 'parse-primitive)
+        (:STRINGFN 'parse-primitive)
+        (:BOOLEANFN 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
         (:TYPEOF 'parse-prefix-operator)

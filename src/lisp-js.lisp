@@ -9,7 +9,7 @@
 
 (defun pretty-print (value)
     (alexandria:switch ((first value) :test 'eq)
-        (:StrVal (concatenate 'string "\"" (second value) "\""))
+        (:StrVal (concatenate 'string "'" (second value) "'"))
         (:NumVal (second (to-str value)))
         (:BoolVal (second (to-str value)))
         (:UndefVal "undefined")
@@ -19,26 +19,29 @@
         (:ObjVal 
             (if (member :list value :test 'eq)
                 (concatenate 'string 
-                    "["
+                    "[ "
                     (reduce 
                         (lambda (acc new)
                             (concatenate 'string acc (if (string= acc "") "" ", ") (pretty-print (cdr new))))
                         (second value)
                         :initial-value "")
-                    "]")
+                    " ]")
                 (concatenate 'string 
-                    "{"
+                    "{ "
                     (reduce 
                         (lambda (new acc)
                             (concatenate 'string acc (if (string= acc "") "" ", ") (second (car new)) ": " (pretty-print (cdr new))))
                         (second value)
                         :initial-value ""
                         :from-end t)
-                    "}")))
+                    " }")))
         (:ClosureVal "[Function]")
         (:ExitFn "[Function]")
         (:InputFn "[Function]")
-        (:PrintFn "[Function]")))
+        (:PrintFn "[Function]")
+        (:NumberFn "[Function]")
+        (:StringFn "[Function]")
+        (:BooleanFn "[Function]")))
 
 (defun main nil 
     (loop while (not *is-exit*) do  

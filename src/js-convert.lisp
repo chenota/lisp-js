@@ -45,12 +45,15 @@
     `(:StrVal 
         ,(alexandria:switch ((first value) :test 'eq)
             (:StrVal (second value))
-            (:NumVal (format nil "~,,,,F" (second value)))
+            (:NumVal 
+                (if (eq (second value) :NaN)
+                    "NaN"
+                    (format nil "~,,,,F" (second value))))
             (:BoolVal (if (second value) "true" "false"))
             (:UndefVal "undefined")
             (:NullVal "null")
             (:IdentVal (second value))
-            (t (error (format t "Error: At end of to-str function with value ~%~A" value))))))
+            (t ""))))
 
 (defun to-num (value)
     `(:NumVal
@@ -64,7 +67,7 @@
             (:BoolVal (if (second value) 1 0))
             (:UndefVal :NaN)
             (:NullVal 0)
-            (t (error (format t "Error: At end of to-num function with value ~%~A" value))))))
+            (t :NaN))))
 
 (defun to-bool (value)
     `(:BoolVal
@@ -74,4 +77,4 @@
             (:StrVal (if (equal (second value) "") nil t))
             (:UndefVal nil)
             (:NullVal nil)
-            (t (error (format t "Error: At end of to-bool function with value ~%~A" value))))))
+            (t t))))
