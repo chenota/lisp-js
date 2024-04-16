@@ -1,6 +1,6 @@
 # Lisp-JS
 
-Lisp-JS is a JavaScript interpreter written entirely in Common Lisp. This project is very much in progress and won't encapsulate all of JavaScript, but it will eventually have much of the language's major functionality (you can think of it like a mini-NodeJS). 
+Lisp-JS is a JavaScript interpreter written entirely in Common Lisp. This project is very much in progress and won't encapsulate all of JavaScript, but it will eventually have much of the language's major functionality (you can think of it like a mini NodeJS). 
 
 ## Finished
 
