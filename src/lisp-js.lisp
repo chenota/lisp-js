@@ -41,7 +41,8 @@
         (:PrintFn "[Function]")
         (:NumberFn "[Function]")
         (:StringFn "[Function]")
-        (:BooleanFn "[Function]")))
+        (:BooleanFn "[Function]")
+        (t (format nil "Unimplemented: ~A" value))))
 
 (defun main nil 
     (loop while (not *is-exit*) do  
