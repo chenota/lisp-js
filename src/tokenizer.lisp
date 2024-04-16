@@ -96,6 +96,7 @@
               ("null" :NULL)
               ("print" :PRINT)
               ("exit" :EXIT)  
+              ("typeof" :TYPEOF)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

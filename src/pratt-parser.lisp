@@ -139,6 +139,7 @@
             (:BITNOT (values nil prefix-power))
             (:PLUS (values nil prefix-power))
             (:MINUS (values nil prefix-power))
+            (:TYPEOF (values nil prefix-power))
             (t (error (format nil "ParserError: Reached end of prefix bp map with token ~A" token))))))
 
 ;; Binding power for postfix operations

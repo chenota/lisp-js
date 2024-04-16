@@ -192,3 +192,17 @@
             (:BoolVal (eq (second left-val) (second right-val)))
             (:ObjRef (= (second left-val) (second right-val)))
             (t nil)))))
+
+(defun js-typeof (val)
+    `(:StrVal 
+        ,(alexandria:switch ((first val) :test 'eq)
+            (:StrVal "string")
+            (:BoolVal "boolean")
+            (:NumVal "number")
+            (:UndefVal "undefined")
+            (:NullVal "null")
+            (:ObjVal "object")
+            (:ClosureVal "function")
+            (:RefVal (second (js-typeof (get-heap val))))
+            (:ObjRef (second (js-typeof (get-heap val))))
+            (t (error "Reached end of typeof map")))))

@@ -58,6 +58,7 @@
         (:BANG :BangUop)
         (:INCREMENT :IncUop)
         (:DECREMENT :DecUop)
+        (:TYPEOF :TypeofUop)
         (t (error (format nil "ParserError: Reached end of uop map with token ~A" token)))))
 
 ;; Parselet for infix negative
@@ -368,6 +369,7 @@
         (:INPUT 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
+        (:TYPEOF 'parse-prefix-operator)
         (t (error (format nil "ParserError: Reached end of null denotations map with token ~A" token)))))
 
 ;; Return the Bop identifier associated with each token type

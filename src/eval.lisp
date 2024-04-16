@@ -243,6 +243,8 @@
                                     (set-heap operandval (js-minus (to-num (resolve-reference operandval)) '(:NumVal 1)))
                                     (resolve-reference operandval))
                                 (error "ReferenceError: Invalid right-hand side expression in prefix operation"))))
+                    (:TypeofUop
+                        (js-typeof (expr-eval operand)))
                     (t (error (format nil "Made it to the end of PreOpExpr eval with ~A" operator))))))
         ;; Postfix operators
         (:PostOpExpr
