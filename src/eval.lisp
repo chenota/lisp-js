@@ -291,7 +291,8 @@
                                     (mapcar 
                                         (lambda (x) (incf index) 
                                             (cons (to-str `(:NumVal ,index)) (push-heap (resolve-reference (expr-eval x))))) 
-                                        vals))))))))
+                                        vals))
+                                :list))))))
         ;; Generic object
         (:ObjExpr
             (destructuring-bind
@@ -354,7 +355,7 @@
                 expr 
                 (declare (ignore _))
                 ;; Change FuncExpr to ClosureVal and also add all accessible variables
-                `(:ObjRef ,(second (push-heap `(:ClosureObj ,name ,params ,body ,(compress-stack)))))))
+                `(:ObjRef ,(second (push-heap `(:ClosureVal ,name ,params ,body ,(compress-stack)))))))
         ;; Function call
         (:CallExpr
             (destructuring-bind
@@ -364,7 +365,7 @@
                 (let ((closval (resolve-object (resolve-reference (expr-eval value)))))
                     (alexandria:switch ((first closval) :test 'eq)
                         ;; User-defined function
-                        (:ClosureObj
+                        (:ClosureVal
                             (destructuring-bind 
                                 (_ name params body env)
                                 closval
