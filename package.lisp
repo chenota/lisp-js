@@ -3,4 +3,7 @@
 (defpackage #:lisp-js
   (:use #:cl #:alexandria #:cl-ppcre)
   (:export 
-    #:main))
+    #:main
+    #:expr
+    #:stmt-eval
+    #:tokenize-string))
