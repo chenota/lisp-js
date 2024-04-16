@@ -100,6 +100,7 @@
               ("Number" :NUMBERFN)
               ("Boolean" :BOOLEANFN)
               ("String" :STRINGFN)
+              ("size" :SIZE)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

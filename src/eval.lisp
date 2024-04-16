@@ -81,7 +81,8 @@
                                                             (to-str (resolve-reference (expr-eval (third left)))) 
                                                             ;; Value is evaluated right side
                                                             (push-heap rval))
-                                                        (second (get-heap lval-res)))))
+                                                        (second (get-heap lval-res)))
+                                                    ,(third (get-heap lval-res))))
                                             rval)
                                         ;; If not object, return right side and move on
                                         (expr-eval right))))
@@ -104,7 +105,8 @@
                                                             `(:StrVal ,(third left))
                                                             ;; Value is evaluated right side
                                                             (push-heap rval))
-                                                        (second (get-heap lval-res)))))
+                                                        (second (get-heap lval-res)))
+                                                    ,(third (get-heap lval-res))))
                                             rval)
                                         ;; If not object, throw a syntax error
                                         (error (format nil "SyntaxError: Invalid or unexpected token ~A" lval-res)))))
@@ -308,7 +310,8 @@
                                 ,(mapcar 
                                     (lambda (x) 
                                         (cons (to-str (car x)) (push-heap (resolve-reference (expr-eval (cdr x))))))
-                                    vals)))))))
+                                    vals)
+                                :object))))))
         (:IdxExpr 
             (destructuring-bind
                 (_ left idx)
@@ -439,6 +442,13 @@
                             (if (first args)
                                 (to-bool (resolve-reference (expr-eval (first args))))
                                 '(:BoolVal nil)))
+                        (:SizeFn
+                            (if (first args)
+                                (let ((arg-eval (resolve-object (resolve-reference (expr-eval (first args))))))
+                                    (if (eq (first arg-eval) :ObjVal)
+                                        `(:NumVal ,(length (second arg-eval)))
+                                        '(:UndefVal nil)))
+                                '(:UndefVal nil)))
                         (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))

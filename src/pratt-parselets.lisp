@@ -28,6 +28,7 @@
         (:NUMBERFN :NumberFn)
         (:STRINGFN :StringFn)
         (:BOOLEANFN :BooleanFn)
+        (:SIZE :SizeFn)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
@@ -213,7 +214,7 @@
                     ;; If commalist inside of brackets, extract values from commalist
                     (if (eq (car right) :COMMALIST)
                         `(:ListExpr ,@(cdr right))
-                        `(:ListExpr ,right))
+                        `(:ListExpr (,right)))
                     (cdr new-token-stream))))))
 
 (defun parse-const (token-stream)
@@ -373,6 +374,7 @@
         (:NUMBERFN 'parse-primitive)
         (:STRINGFN 'parse-primitive)
         (:BOOLEANFN 'parse-primitive)
+        (:SIZE 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
         (:TYPEOF 'parse-prefix-operator)
@@ -472,7 +474,7 @@
         (parse-list token-stream)
         ;; Going to return a listexpr, basically just rename it to idxexpr and add left side
         (values 
-            `(:IdxExpr ,left ,(cadr right))
+            `(:IdxExpr ,left ,@(cadr right))
             new-token-stream)))
 
 (defun parse-call (token-stream left)

@@ -114,4 +114,5 @@
         (:NumberFn "[Function]")
         (:StringFn "[Function]")
         (:BooleanFn "[Function]")
+        (:SizeFn "[Function]")
         (t (format nil "Unimplemented: ~A" value))))
