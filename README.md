@@ -61,6 +61,7 @@ This project is being developed on Ubuntu 20.04.6 LTS.
 Quicklisp Packages:
 - Alexandria
 - CL-PPCRE
+- parse-number
 
 Pratt Parsers:
 - https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html

@@ -12,7 +12,8 @@
   :build-operation program-op
   :build-pathname "ljs.o"
   :depends-on (#:cl-ppcre
-               #:alexandria)
+               #:alexandria
+               #:parse-number)
   :components ((:file "package")
                (:file "src/lisp-js")
                (:file "src/tokenizer")
