@@ -141,6 +141,19 @@
                 
                 `(:BoolVal ,(>= (second lnum) (second rnum)))))))
 
+(defun js-rem (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (or  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            `(:NumVal :NaN)
+            `(:NumVal ,(rem (second lnum) (second rnum))))))
+
 (defun js-negate (val)
     (let ((num (to-num val)))
         (if (eq (second num) :NaN)

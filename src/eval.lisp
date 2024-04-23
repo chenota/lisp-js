@@ -218,7 +218,9 @@
                         (let ((first-operand (expr-eval left)))
                             (if (second (to-bool (resolve-reference first-operand)))
                                 (expr-eval right)
-                                first-operand))))))
+                                first-operand)))
+                    ;; Division operators
+                    (:RemBop (js-rem (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
         ;; Prefix operators
         (:PreOpExpr
             (destructuring-bind 

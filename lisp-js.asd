@@ -10,7 +10,7 @@
   :serial t
   :entry-point "lisp-js:main"
   :build-operation program-op
-  :build-pathname "ljs.o"
+  :build-pathname "lispjs"
   :depends-on (#:cl-ppcre
                #:alexandria
                #:parse-number)

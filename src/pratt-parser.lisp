@@ -61,6 +61,7 @@
         ;; Multiplicative
         (:TIMES (values 55 56))
         (:DIV (values 55 56))
+        (:REM (values 55 56))
         ;; Exponentiation (right associative)
         (:POWER (values 60 61))
         ;; Bit shift operators

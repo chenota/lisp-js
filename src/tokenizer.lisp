@@ -44,7 +44,7 @@
               ;; Ternary operator
               ("\\?" :TERNARY)
               ;; Arithmetic operators
-              ("%" :MOD)
+              ("%" :REM)
               ("\\*\\*" :POWER)
               ("\\+\\+" :INCREMENT)
               ("--" :DECREMENT)

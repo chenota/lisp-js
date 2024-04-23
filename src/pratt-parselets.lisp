@@ -406,6 +406,7 @@
         (:STREQ :StrEqBop)
         (:INEQ :InEqBop)
         (:STRINEQ :StrInEqBop)
+        (:REM :RemBop)
         (t (error (format nil "ParserError: Reached end of infix operators map with token ~A" token)))))
 
 ;; Generic parse infix operator function
@@ -638,4 +639,5 @@
         (:DECREMENT 'parse-postfix-operator)
         (:TERNARY 'parse-ternary)
         (:DOT 'parse-dot)
+        (:REM 'parse-infix-operator)
         (t (error (format nil "ParserError: Reached end of left denotations map with token ~A" token)))))
