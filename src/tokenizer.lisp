@@ -135,14 +135,11 @@
             (loop while (< start-idx end-idx) do 
                 ;; Go through all token scanners, grab first match
                 (destructuring-bind
-                    (token matched-string)
+                    (token matched-string ~)
                     (reduce 
                         ;; Fold-left function
                         (lambda 
                             (acc new)
-                            (if 
-                                ;; If haven't found match...
-                                (equal acc '(nil nil))
                                 ;; Check next token scanner
                                 (destructuring-bind
                                     (token-scanner result-token)
@@ -159,17 +156,20 @@
                                         (if
                                             ;; If found a match...
                                             matched-string
-                                            ;; Return token and string that matched it
-                                            `(,result-token ,matched-string)
-                                            ;; Otherwise, return nil nil
-                                            '(nil nil))))
-                                ;; Otherwise, return what already have
-                                acc))
+                                            ;; Check length of match
+                                            (if (> (length matched-string) (third acc))
+                                                ;; If longer, it is the new match
+                                                `(,result-token ,matched-string ,(length matched-string))
+                                                ;; Otherwise, return acc
+                                                acc)
+                                            ;; Otherwise, return acc
+                                            acc))))
                         *js-token-scanners*
-                        :initial-value '(nil nil))
+                        :initial-value '(nil nil 0))
+                    (declare (ignore _))
                     (if
                         ;; If didn't find anything...
-                        (equal `(,token ,matched-string) '(nil nil))
+                        (equal `(,token ,matched-string) '(nil nil 0))
                         ;; Set tokens to nil, break the loop by making end-idx equal
                         ;; to start-idx (breaks loop while preserving value of start-idx
                         ;; to return later)
