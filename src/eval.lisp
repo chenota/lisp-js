@@ -449,6 +449,13 @@
                                         `(:NumVal ,(length (second arg-eval)))
                                         '(:UndefVal nil)))
                                 '(:UndefVal nil)))
+                        (:RandomFn
+                            (if (first args)
+                                (let ((first-num (second (to-num (resolve-reference (expr-eval (first args)))))))
+                                    (if (eq first-num :NaN)
+                                        '(:UndefVal nil)
+                                        `(:NumVal ,(random first-num))))
+                                `(:NumVal ,(random 1.0))))
                         (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; If all else fails, attempt to evaluate as a value
         (t (val-eval expr))))

@@ -101,6 +101,7 @@
               ("Boolean" :BOOLEANFN)
               ("String" :STRINGFN)
               ("size" :SIZE)
+              ("random" :RANDOMFN)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

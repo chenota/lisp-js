@@ -28,6 +28,7 @@
         (:NUMBERFN :NumberFn)
         (:STRINGFN :StringFn)
         (:BOOLEANFN :BooleanFn)
+        (:RANDOMFN :RandomFn)
         (:SIZE :SizeFn)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
@@ -375,6 +376,7 @@
         (:STRINGFN 'parse-primitive)
         (:BOOLEANFN 'parse-primitive)
         (:SIZE 'parse-primitive)
+        (:RANDOMFN 'parse-primitive)
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
         (:TYPEOF 'parse-prefix-operator)
