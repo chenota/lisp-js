@@ -32,7 +32,7 @@
               ("\\*\\*=" :ASEXPONENT)
               ("\\*=" :ASTIMES)
               ("/=" :ASDIV)
-              ("%=" :ASMOD)
+              ("%=" :ASREM)
               ("<<=" :ASLSHIFT)
               (">>=" :ASRSHIFT)
               (">>>=" :ASURSHIFT)

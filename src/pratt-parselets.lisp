@@ -497,6 +497,18 @@
 (defun get-assign-op (token)
     (alexandria:switch ((first token) :test 'eq)
         (:ASSIGN :GenericAssign)
+        (:ASPLUS :PlusAssign)
+        (:ASMINUS :MinusAssign)
+        (:ASTIMES :TimesAssign)
+        (:ASREM :RemAssign)
+        (:ASLSHIFT :LShiftAssign)
+        (:ASRSHIFT :RShiftAssign)
+        (:ASURSHIFT :URShiftAssign)
+        (:ASBITAND :BitAndAssign)
+        (:ASXOR :XorAssign)
+        (:ASBITOR :BitOrAssign)
+        (:ASLOGAND :LogAndAssign)
+        (:ASLOGOR :LogOrAssign)
         (t (error (format nil "ParserError: Reached end of infix operators map with token ~A" token)))))
 
 ;; Generic parse assignment operator function
@@ -604,6 +616,23 @@
                 ;; Error if not identifier
                 (error (format nil "Error: A DOT must be followed by an identval"))))))
 
+(defun parse-special-assignment (token-stream left)
+    ;; Get binding powers of infix operator
+    (multiple-value-bind 
+        (_ r-bp)
+        (infix-binding-power (first token-stream))
+        (declare (ignore _))
+        ;; Evaluate right side of operator
+        (multiple-value-bind
+            (right new-token-stream)
+            ;; Token stream is advanced during this function call,
+            ;; no need to advance it separately
+            (expr-bp (cdr token-stream) r-bp)
+            ;; Return new token stream and parsed infix operator
+            (values
+                `(:SpecialAssign ,(get-assign-op (first token-stream)) ,left ,right)
+                new-token-stream))))
+
 ;; Maps token type to its left denotation parselet
 (defun left-denotations (token)
     (alexandria:switch ((first token) :test 'eq)
@@ -640,4 +669,16 @@
         (:TERNARY 'parse-ternary)
         (:DOT 'parse-dot)
         (:REM 'parse-infix-operator)
+        (:ASPLUS 'parse-special-assignment)
+        (:ASMINUS 'parse-special-assignment)
+        (:ASTIMES 'parse-special-assignment)
+        (:ASREM 'parse-special-assignment)
+        (:ASLSHIFT 'parse-special-assignment)
+        (:ASRSHIFT 'parse-special-assignment)
+        (:ASURSHIFT 'parse-special-assignment)
+        (:ASBITAND 'parse-special-assignment)
+        (:ASXOR 'parse-special-assignment)
+        (:ASBITOR 'parse-special-assignment)
+        (:ASLOGAND 'parse-special-assignment)
+        (:ASLOGOR 'parse-special-assignment)
         (t (error (format nil "ParserError: Reached end of left denotations map with token ~A" token)))))

@@ -143,16 +143,8 @@
                     (:InEqBop `(:BoolVal ,(not (second (js-eq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
                     (:StrInEqBop `(:BoolVal ,(not (second (js-streq (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
                     ;; Logical operators
-                    (:LogOrBop
-                        (let ((first-operand (expr-eval left)))
-                            (if (second (to-bool (resolve-reference first-operand)))
-                                first-operand
-                                (expr-eval right))))
-                    (:LogAndBop
-                        (let ((first-operand (expr-eval left)))
-                            (if (second (to-bool (resolve-reference first-operand)))
-                                (expr-eval right)
-                                first-operand)))
+                    (:LogOrBop (js-logor (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:LogAndBop (js-logand (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; Division operators
                     (:RemBop (js-rem (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
         ;; Prefix operators
@@ -456,6 +448,82 @@
                                                         (second (get-heap lval-res)))
                                                     ,(third (get-heap lval-res))))
                                             rval)
+                                        ;; If not object, throw a syntax error
+                                        (error (format nil "SyntaxError: Invalid or unexpected token ~A" lval-res)))))
+                            (t (error "TypeError: Assignment to constant variable")))))))
+        (:SpecialAssign
+            (destructuring-bind
+                (_ op left right)
+                expr 
+                (declare (ignore _))
+                ;; Attempt to get variable on lhs of operator
+                (let* 
+                    ((lval (expr-eval left))
+                    ;; Also get function to run
+                     (opfn 
+                        (alexandria:switch (op :test 'eq)
+                            (:PlusAssign 'js-plus)
+                            (:MinusAssign 'js-minus)
+                            (:TimesAssign 'js-times)
+                            (:DivAssign 'js-div)
+                            (:RemAssign 'js-rem)
+                            (:LogOrAssign 'js-logor)
+                            (:LogAndAssign 'js-logand)
+                            (t (error "Unimplemented SpecialAssign")))))
+                    ;; Check if left is a reference
+                    (if (eq (first lval) :RefVal)
+                        ;; Set heap reference to new value and return value it was set to
+                        (let ((new-val (funcall opfn (resolve-reference lval) (resolve-reference (expr-eval right)))))
+                            (set-heap lval new-val)
+                            new-val)
+                        ;; If not refval, see if is idx or dot assignment
+                        (alexandria:switch ((first left) :test 'eq)
+                            (:IdxExpr
+                                ;; Get object being indexed
+                                (let ((lval-res (resolve-reference (expr-eval (second left))))
+                                      (rval (resolve-reference (expr-eval right))))
+                                    ;; make sure object being indexed is actually an object
+                                    (if (eq (first lval-res) :ObjRef)
+                                        (let ((new-val (funcall opfn '(:UndefVal nil) rval)))
+                                            ;; Update heap w/ new object
+                                            (set-heap
+                                                lval-res 
+                                                `(:ObjVal 
+                                                    ;; Cons new value onto existing object
+                                                    ,(cons
+                                                        ;; New value is conscell
+                                                        (cons 
+                                                            ;; Key is coerced into a string
+                                                            (to-str (resolve-reference (expr-eval (third left)))) 
+                                                            ;; Value is evaluated right side
+                                                            (push-heap new-val))
+                                                        (second (get-heap lval-res)))
+                                                    ,(third (get-heap lval-res))))
+                                            new-val)
+                                        ;; If not object, return right side and move on
+                                        (expr-eval right))))
+                            (:DotExpr 
+                                ;; Get object being indexed
+                                (let ((lval-res (resolve-reference (expr-eval (second left))))
+                                      (rval (resolve-reference (expr-eval right))))
+                                    ;; make sure object being indexed is actually an object
+                                    (if (eq (first lval-res) :ObjRef)
+                                        (let ((new-val (funcall opfn '(:UndefVal nil) rval))) 
+                                            ;; Update heap w/ new object
+                                            (set-heap
+                                                lval-res 
+                                                `(:ObjVal 
+                                                    ;; Cons new value onto existing object
+                                                    ,(cons
+                                                        ;; New value is conscell
+                                                        (cons 
+                                                            ;; Key is coerced into a string
+                                                            `(:StrVal ,(third left))
+                                                            ;; Value is evaluated right side
+                                                            (push-heap new-val))
+                                                        (second (get-heap lval-res)))
+                                                    ,(third (get-heap lval-res))))
+                                            new-val)
                                         ;; If not object, throw a syntax error
                                         (error (format nil "SyntaxError: Invalid or unexpected token ~A" lval-res)))))
                             (t (error "TypeError: Assignment to constant variable")))))))

@@ -154,6 +154,16 @@
             `(:NumVal :NaN)
             `(:NumVal ,(rem (second lnum) (second rnum))))))
 
+(defun js-logor (left-val right-val)
+    (if (second (to-bool left-val))
+        left-val
+        right-val))
+
+(defun js-logand (left-val right-val)
+    (if (second (to-bool left-val))
+        right-val
+        left-val))
+
 (defun js-negate (val)
     (let ((num (to-num val)))
         (if (eq (second num) :NaN)
