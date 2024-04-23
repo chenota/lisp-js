@@ -167,8 +167,8 @@
             ('(:NullVal :UndefVal) '(:BoolVal t))
             ('(:UndefVal :NullVal) '(:BoolVal t))
             ;; If num and str, convert str to num and check equality
-            ('(:NumVal :StrVal) `(:BoolVal ,(= (second left-val) (second (to-num right-val)))))
-            ('(:StrVal :NumVal) `(:BoolVal ,(= (second (to-num left-val)) (second right-val))))
+            ('(:NumVal :StrVal) (js-streq left-val (to-num right-val)))
+            ('(:StrVal :NumVal) (js-streq (to-num left-val) right-val))
             ;; Checking if either is a boolean
             ;; If so, convert boolean to num then recursively re-evaluate
             (t 
@@ -185,7 +185,7 @@
     (if (not (eq (first left-val) (first right-val)))
         '(:BoolVal nil)
         `(:BoolVal ,(alexandria:switch ((first left-val) :test 'eq)
-            (:NumVal (= (second left-val) (second right-val)))
+            (:NumVal (equal (second left-val) (second right-val)))
             (:NullVal t)
             (:UndefVal t)
             (:StrVal (equal (second left-val) (second right-val)))
@@ -205,4 +205,4 @@
             (:ClosureVal "function")
             (:RefVal (second (js-typeof (get-heap val))))
             (:ObjRef (second (js-typeof (get-heap val))))
-            (t (error "Reached end of typeof map")))))
+            (t (error (format nil "Error: typeof not available for ~A" val))))))
