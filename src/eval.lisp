@@ -411,9 +411,10 @@
                         (:SizeFn
                             (if (first args)
                                 (let ((arg-eval (resolve-object (resolve-reference (expr-eval (first args))))))
-                                    (if (eq (first arg-eval) :ObjVal)
-                                        `(:NumVal ,(length (second arg-eval)))
-                                        '(:UndefVal nil)))
+                                    (alexandria:switch ((first arg-eval) :test 'eq)
+                                        (:ObjVal `(:NumVal ,(length (second arg-eval))))
+                                        (:StrVal `(:NumVal ,(length (second arg-eval))))
+                                        (t '(:UndefVal nil))))
                                 '(:UndefVal nil)))
                         (:RandomFn
                             (if (first args)
