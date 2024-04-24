@@ -260,15 +260,25 @@
                 (_ vals)
                 expr 
                 (declare (ignore _))
-                `(:ObjRef
-                    ,(second
-                        (push-heap
-                            `(:ObjVal
-                                ,(mapcar 
-                                    (lambda (x) 
-                                        (cons (to-str (car x)) (push-heap (resolve-reference (expr-eval (cdr x))))))
-                                    vals)
-                                :object))))))
+                (let*
+                    ;; Build objval
+                    ((val
+                        `(:ObjVal
+                            ,(mapcar 
+                                (lambda (x) 
+                                    (cons (to-str (car x)) (push-heap (resolve-reference (expr-eval (cdr x))))))
+                                vals)
+                            :object))
+                    ;; Make reference to objval
+                     (ref `(:ObjRef ,(second (push-heap val)))))
+                    ;; Add 'this' to function closures
+                    (loop for pair in (second (resolve-object ref)) do
+                        (format t "~A~%" pair)
+                        (if (eq (first (resolve-object (resolve-reference (cdr pair)))) :ClosureVal)
+                            (setf (fifth (resolve-object (resolve-reference (cdr pair)))) (cons (cons "this" ref) (fifth (resolve-object (resolve-reference (cdr pair))))))
+                            nil))
+                    ;; Return reference
+                    ref)))
         (:IdxExpr 
             (destructuring-bind
                 (_ left idx)
@@ -333,6 +343,7 @@
                                 closval
                                 (declare (ignore _))
                                 (progn
+                                    (format t "~A~%" env)
                                     ;; Push closure env to stack 
                                     (push-frame env)
                                     ;; Try to fill all params

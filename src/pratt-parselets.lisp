@@ -31,6 +31,7 @@
         (:RANDOMFN :RandomFn)
         (:SIZE :SizeFn)
         (:KEYS :KeysFn)
+        (:THIS :ThisVal)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
