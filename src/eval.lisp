@@ -146,7 +146,13 @@
                     (:LogOrBop (js-logor (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:LogAndBop (js-logand (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; Division operators
-                    (:RemBop (js-rem (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
+                    (:RemBop (js-rem (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    ;; Bitwise operators
+                    (:BitOrBop (js-bitor (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:BitAndBop (js-bitand (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:XorBop (js-xor (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:LShiftBop (js-lshift (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:RShiftBop (js-rshift (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
         ;; Prefix operators
         (:PreOpExpr
             (destructuring-bind 
@@ -154,9 +160,9 @@
                 expr 
                 (declare (ignore _))
                 (alexandria:switch (operator :test 'eq)
-                    (:NegUop (js-negate (expr-eval operand)))
-                    (:PosUop (js-abs (expr-eval operand)))
-                    (:BangUop (js-not (expr-eval operand)))
+                    (:NegUop (js-negate (resolve-reference (expr-eval operand))))
+                    (:PosUop (js-abs (resolve-reference (expr-eval operand))))
+                    (:BangUop (js-not (resolve-reference (expr-eval operand))))
                     (:IncUop 
                         (let ((operandval (expr-eval operand)))
                             ;; Check if incrementing reference
@@ -175,6 +181,8 @@
                                 (error "ReferenceError: Invalid right-hand side expression in prefix operation"))))
                     (:TypeofUop
                         (js-typeof (expr-eval operand)))
+                    (:BitNotUop
+                        (js-bitnot (resolve-reference (expr-eval operand))))
                     (t (error (format nil "Made it to the end of PreOpExpr eval with ~A" operator))))))
         ;; Postfix operators
         (:PostOpExpr
@@ -469,6 +477,11 @@
                             (:RemAssign 'js-rem)
                             (:LogOrAssign 'js-logor)
                             (:LogAndAssign 'js-logand)
+                            (:BitOrAssign 'js-bitor)
+                            (:BitAndAssign 'js-bitand)
+                            (:XorAssign 'js-xor)
+                            (:LShiftAssign 'js-lshift)
+                            (:RShiftAssign 'js-rshift)
                             (t (error "Unimplemented SpecialAssign")))))
                     ;; Check if left is a reference
                     (if (eq (first lval) :RefVal)

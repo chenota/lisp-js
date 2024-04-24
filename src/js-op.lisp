@@ -164,6 +164,107 @@
         right-val
         left-val))
 
+(defun js-bitor (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (and  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            '(:NumVal 0.0)
+            (if 
+                (eq (second rnum) :NaN)
+                lnum 
+                (if 
+                    (eq (second lnum) :NaN)
+                    rnum 
+                    `(:NumVal ,(logior (floor (second lnum)) (floor (second rnum)))))))))
+
+(defun js-bitand (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (or  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            '(:NumVal 0.0)
+            `(:NumVal ,(logand (floor (second lnum)) (floor (second rnum)))))))
+
+(defun js-xor (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (and  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            '(:NumVal 0.0)
+            (if 
+                (eq (second rnum) :NaN)
+                lnum 
+                (if 
+                    (eq (second lnum) :NaN)
+                    rnum 
+                    `(:NumVal ,(logxor (floor (second lnum)) (floor (second rnum)))))))))
+
+(defun js-lshift (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (and  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            '(:NumVal 0.0)
+            (if 
+                (eq (second rnum) :NaN)
+                lnum 
+                (if 
+                    (eq (second lnum) :NaN)
+                    '(:NumVal 0.0)
+                    (if 
+                        (< (floor (second rnum)) 0)
+                        '(:NumVal 0.0)
+                        `(:NumVal ,(ash (floor (second lnum)) (floor (second rnum))))))))))
+
+(defun js-rshift (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lnum (to-num left-val))
+         (rnum (to-num right-val)))
+        ;; Check for NaN
+        (if  
+            (and  
+                (eq (second lnum) :NaN)
+                (eq (second rnum) :NaN))
+            '(:NumVal 0.0)
+            (if 
+                (eq (second rnum) :NaN)
+                lnum 
+                (if 
+                    (eq (second lnum) :NaN)
+                    '(:NumVal 0.0)
+                    (if 
+                        (< (floor (second rnum)) 0)
+                        '(:NumVal 0.0)
+                        `(:NumVal ,(ash (floor (second lnum)) (floor (* -1 (second rnum)))))))))))
+
+(defun js-bitnot (val)
+    (let ((num (to-num val)))
+        (if (eq (second num) :NaN)
+            `(:NumVal -1.0)
+            `(:NumVal ,(lognor (floor (second num)) (floor (second num)))))))
+
 (defun js-negate (val)
     (let ((num (to-num val)))
         (if (eq (second num) :NaN)

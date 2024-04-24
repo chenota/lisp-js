@@ -20,7 +20,9 @@
             (:NumVal 
                 (if (eq (second value) :NaN)
                     "NaN"
-                    (format nil "~,,,,F" (second value))))
+                    (if (= (floor (second value)) (second value))
+                        (format nil "~d" (floor (second value)))
+                        (format nil "~d" (second value)))))
             (:BoolVal (if (second value) "true" "false"))
             (:UndefVal "undefined")
             (:NullVal "null")
