@@ -276,7 +276,7 @@
                             acc))
                     (second robj)
                     :initial-value nil))
-            (error (format nil "TypeError: Cannot use 'in' operator to search for ~s in ~s" (pretty-print lstr) (pretty-print right-val))))))
+            (error (format nil "TypeError: Cannot use 'in' operator to search for ~A in ~A" (pretty-print lstr) (pretty-print right-val))))))
 
 (defun js-bitnot (val)
     (let ((num (to-num val)))
