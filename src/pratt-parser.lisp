@@ -64,6 +64,8 @@
         (:REM (values 55 56))
         ;; Exponentiation (right associative)
         (:POWER (values 60 61))
+        ;; In
+        (:IN (values 62 63))
         ;; Bit shift operators
         (:LSHIFT (values 45 46))
         (:RSHIFT (values 45 46))

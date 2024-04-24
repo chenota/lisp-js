@@ -259,6 +259,25 @@
                         '(:NumVal 0.0)
                         `(:NumVal ,(ash (floor (second lnum)) (floor (* -1 (second rnum)))))))))))
 
+(defun js-in (left-val right-val)
+    ;; Cast values to numbers
+    (let  
+        ((lstr (to-str left-val))
+         (robj (resolve-object right-val)))
+        ;; Check for object on right
+        (if  
+            (eq (first robj) :ObjVal)
+            `(:BoolVal
+                ,(reduce 
+                    (lambda (acc new)
+                        (if  
+                            (string= (second (car new)) (second lstr))
+                            t  
+                            acc))
+                    (second robj)
+                    :initial-value nil))
+            (error (format nil "TypeError: Cannot use 'in' operator to search for ~s in ~s" (pretty-print lstr) (pretty-print right-val))))))
+
 (defun js-bitnot (val)
     (let ((num (to-num val)))
         (if (eq (second num) :NaN)

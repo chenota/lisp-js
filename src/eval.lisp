@@ -152,7 +152,8 @@
                     (:BitAndBop (js-bitand (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:XorBop (js-xor (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:LShiftBop (js-lshift (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
-                    (:RShiftBop (js-rshift (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
+                    (:RShiftBop (js-rshift (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:InBop (js-in (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right)))))))
         ;; Prefix operators
         (:PreOpExpr
             (destructuring-bind 
