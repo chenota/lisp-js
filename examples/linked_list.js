@@ -1,3 +1,11 @@
+/* Functional Linked List */
+/*
+This example demonstrates: 
+- Use of lexical scope to simulate private methods in a 'class'
+- How lexically scoped functions can be used as data structures (conscells in this case)
+- Use of the 'this' keyword to allow an object to refer to itself
+*/
+
 // Linked list "class"
 const linked_list = function(){
     // "Private" methods
