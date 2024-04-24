@@ -273,7 +273,6 @@
                      (ref `(:ObjRef ,(second (push-heap val)))))
                     ;; Add 'this' to function closures
                     (loop for pair in (second (resolve-object ref)) do
-                        (format t "~A~%" pair)
                         (if (eq (first (resolve-object (resolve-reference (cdr pair)))) :ClosureVal)
                             (setf (fifth (resolve-object (resolve-reference (cdr pair)))) (cons (cons "this" ref) (fifth (resolve-object (resolve-reference (cdr pair))))))
                             nil))
@@ -343,7 +342,6 @@
                                 closval
                                 (declare (ignore _))
                                 (progn
-                                    (format t "~A~%" env)
                                     ;; Push closure env to stack 
                                     (push-frame env)
                                     ;; Try to fill all params
