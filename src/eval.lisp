@@ -98,6 +98,26 @@
                         (pop-frame)
                         ;; Return last value
                         last-value))))
+        (:InForStmt
+            (destructuring-bind
+                (_ keyname test-obj body)
+                stmt 
+                (declare (ignore _))
+                (let ((obj (resolve-object (resolve-reference (expr-eval test-obj)))))
+                    (if (and (eq (first obj) :ObjVal) (eq (first keyname) :IdentVal))
+                        (let ((last-value '(:UndefVal nil)))
+                            (loop for pair in (second obj) do  
+                                ;; Push new scope
+                                (push-empty-frame)
+                                ;; Add key name to current frame
+                                (push-to-current-frame (second keyname) (push-heap (first pair)))
+                                ;; Run loop
+                                (setq last-value (resolve-reference (stmt-eval body)))
+                                ;; Pop scope
+                                (pop-frame))
+                            ;; Return last value
+                            last-value))
+                        '(:UndefVal nil))))
         (:WhileStmt
             (destructuring-bind  
                 (_ test body)

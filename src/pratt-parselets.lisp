@@ -319,8 +319,15 @@
                     (values
                         `(:ForStmt ,(second conds) ,(third conds) ,(fourth conds) ,right)
                         newer-token-stream))
-                ;; Error: Must have STMT
-                (error (format nil "ParserError: Must have three statements in FOR loop~A" conds))))
+                (if (and (eq (car conds) :BopExpr) (eq (second conds) :InBop))
+                    (multiple-value-bind 
+                        (right newer-token-stream)
+                        (expr-bp new-token-stream 3)
+                        (values
+                            `(:InForStmt ,(third conds) ,(fourth conds) ,right)
+                            newer-token-stream))
+                    ;; Error: Must have STMT
+                    (error (format nil "ParserError: Malformed FOR loop with conditions ~A" conds)))))
     ;; Otherwise, error
     (error (format nil "ParserError: A for loop must be followed by an LPAREN token"))))
 
