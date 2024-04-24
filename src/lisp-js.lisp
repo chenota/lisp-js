@@ -26,6 +26,6 @@
                 (finish-output)
                 (handler-case 
                     ;; Normal execution
-                    (format t "~A~%" (pretty-print (eval-str (read-line))))
+                    (format t "~A~%" (pretty-print (eval-str (concatenate 'string (read-line) (format nil "~%")))))
                     ;; Handle error messages
                     (error (e) (format t "~A~%" e)))))))
