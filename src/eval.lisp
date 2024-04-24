@@ -393,6 +393,24 @@
                                         '(:UndefVal nil)
                                         `(:NumVal ,(random first-num))))
                                 `(:NumVal ,(random 1.0))))
+                        (:KeysFn
+                            (if (first args)
+                                (let ((obj (resolve-object (resolve-reference (expr-eval (first args))))))
+                                    (if (eq (first obj) :ObjVal)
+                                        `(:ObjRef 
+                                            ,(second 
+                                                (push-heap 
+                                                    `(:ObjVal
+                                                        ,(let ((index -1))
+                                                            (reduce 
+                                                                (lambda (acc new)
+                                                                    (incf index)
+                                                                    (cons (cons (to-str `(:NumVal ,index)) (push-heap (car new))) acc))
+                                                                (second obj)
+                                                                :initial-value nil))
+                                                        :list))))
+                                        '(:UndefVal nil)))
+                                '(:UndefVal nil)))
                         (t (error (format nil "TypeError: ~A is not a function" closval)))))))
         ;; x = y
         (:GenericAssign

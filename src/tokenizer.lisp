@@ -102,6 +102,7 @@
               ("String" :STRINGFN)
               ("size" :SIZE)
               ("random" :RANDOMFN)
+              ("keys" :KEYS)
               ;; Variables
               ("[a-zA-Z_$][a-zA-Z0-9_$]*" :IDENTIFIER)
               ;; Numbers

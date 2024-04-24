@@ -89,4 +89,5 @@
         (:StringFn "[Function]")
         (:BooleanFn "[Function]")
         (:SizeFn "[Function]")
+        (:KeysFn "[Function]")
         (t (format nil "Unimplemented: ~A" value))))

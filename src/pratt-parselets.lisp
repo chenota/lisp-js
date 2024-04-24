@@ -30,6 +30,7 @@
         (:BOOLEANFN :BooleanFn)
         (:RANDOMFN :RandomFn)
         (:SIZE :SizeFn)
+        (:KEYS :KeysFn)
         (t (error (format nil "ParserError: Reached end of primitive map with token ~A" token)))))
 
 ;; Parse a primitive value
@@ -380,6 +381,7 @@
         (:NaN 'parse-nan)
         (:NULL 'parse-null)
         (:TYPEOF 'parse-prefix-operator)
+        (:KEYS 'parse-primitive)
         (t (error (format nil "ParserError: Reached end of null denotations map with token ~A" token)))))
 
 ;; Return the Bop identifier associated with each token type
