@@ -112,9 +112,8 @@ const linked_list = function(){
 };
 const myll = linked_list();
 myll.from_arr(["Hello",", ","World","!"]);
-print(
-    "List: " + myll.to_string(), 
-    "Length: " + myll.length, 
-    "Front: " + myll.peek_front(),
-    "Back: " + myll.peek_back()
-)
+
+print("List: " + myll.to_string())
+print("Length: " + myll.length)
+print("Front: " + myll.peek_front())
+print("Back: " + myll.peek_back())
