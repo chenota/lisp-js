@@ -288,6 +288,7 @@
                     ((idxval (resolve-reference (expr-eval idx)))
                      (leftval (resolve-reference (expr-eval left)))
                      (leftobj (resolve-object leftval)))
+                    ;; Get the thing being indexed
                     (alexandria:switch ((first leftobj) :test 'eq)
                         (:ObjVal 
                             (let ((accval (to-str idxval)))
@@ -298,6 +299,15 @@
                                             acc))
                                     (second leftobj)
                                     :initial-value '(:UndefVal nil))))
+                        (:StrVal
+                            (let ((idxval (to-num idxval)))
+                            ;; Check bounds
+                                (if (or 
+                                        (eq (second idxval) :NaN)
+                                        (> 0 (floor (second idxval)))
+                                        (>= (floor (second idxval)) (length (second leftobj))))
+                                    '(:UndefVal nil)
+                                    `(:StrVal ,(subseq (second leftobj) (floor (second idxval)) (+ 1 (floor (second idxval))))))))
                         (t '(:UndefVal nil))))))
         (:DotExpr
             (destructuring-bind
