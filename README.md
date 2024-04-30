@@ -2,7 +2,7 @@
 
 LispJS is a JavaScript interpreter written entirely in Common Lisp, that includes both a CLI and file functionality.
 
-## How to Run
+## How to run LispJS
 
 This project is formulated as an ASDF-based system (i.e. package) for Common Lisp. In order to run it, you must have SBCL and Quicklisp installed. If so, you can clone this repository into
 
@@ -33,7 +33,7 @@ The compiled binary can be ran like so:
 ./lispjs [file-name]
 ```
 
-## How Does LispJS Work?
+## Software Pipeline Overview
 
 LispJS was built entirely from scratch (by me!), and follows a typical interpreter software pipeline.
 
@@ -132,7 +132,7 @@ Related Files:
     <li>lisp-js.lisp</li>
 </ul>
 
-## What JS Functionality Does LispJS Include?
+## Included JavaScript Functionality
 
 ### Primitive Data Types
 
@@ -240,6 +240,24 @@ Related Files:
     <li>keys(object)</li>
     <li>exit(&optional status-code)</li>
 </ul>
+
+## Issues and Future Work
+
+<ol>
+    <li>As stated earlier, big-step semantics are really inefficient. In the future, I could update to evaluator to use small-step semantics which would make execution much quicker.</li>
+    <li>The interpreter memory leaks by not deleteing references on the heap that are completely lost. In the future, I could fix memory leaks by implementing a garbage collector or some sort of smart pointer system.</li>
+    <li>The heap is implemented as an associative array with O(n) access time, which could be improved in the future by implementing the heap using a smarter data structure, like a map.
+    <li>A big part of JavaScript is that it is event driven, and my implementation is not event driven. In the future, I could implement an async/await system to make my implementation much closer to full-featured JavaScript.</li>
+    <li>Many JavaScript syntax errors will trigger a Common LISP runtime error message that gives you no information about what went wrong. In the future, I could add a more robust error system to add more helpful error messages.</li>
+</ol>
+
+## Concluding Thoughts
+
+When I first started writing LispJS, I did so because I didn't have a job and I wanted to build a more impressive portfolio to show to potential employers. Since I started LispJS, I found a job, but I was still super motivated to finish it simply because I really enjoyed working on it. 
+
+I'm really glad that I decided to write this project in Common LISP, partially so I can be a little pompous about it, but mostly because Common LISP is a really cool language and it's a genuine shame that more people aren't excited about it. Admittedly, the parenenthesis are offputting and the s-expression syntax is difficult to get used to, but those problems are far outweighted by how cool it is that code <i>is</i> data and also the convenience of having utterly unambiguous and modular code. 
+
+I can honestly say that I'm really proud of LispJS. Sure, it's inefficient and the future work section is clear about how, but more importantly, it <i>works</i>. Syntactically correct JavaScript code that falls within the set of features I've implemented will run and give a correct output. Moving forward, I'm super inspired to work on another language project, whether that be some sort of compiler for a simple language or an interpreter for a complex language that I define myself. The world of programming languages is vast and interesting, and I'm very happy to have created my place within it.
 
 ## Development Information
 
