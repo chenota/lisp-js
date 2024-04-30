@@ -57,6 +57,17 @@
                 `(:NumVal :NaN)
                 `(:NumVal ,(/ (second lnum) (second rnum))))))
 
+(defun js-exponent (left-val right-val)
+    (let  
+            ((lnum (to-num left-val))
+             (rnum (to-num right-val)))
+            (if  
+                (or  
+                    (eq (second lnum) :NaN)
+                    (eq (second rnum) :NaN))
+                `(:NumVal :NaN)
+                `(:NumVal ,(expt (second lnum) (second rnum))))))
+
 (defun js-lt (left-val right-val)
     ;; Check for strings
     (if 

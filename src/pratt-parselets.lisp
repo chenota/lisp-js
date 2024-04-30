@@ -519,6 +519,7 @@
         (:ASBITOR :BitOrAssign)
         (:ASLOGAND :LogAndAssign)
         (:ASLOGOR :LogOrAssign)
+        (:ASEXPONENT :ExponentAssign)
         (t (error (format nil "ParserError: Reached end of infix operators map with token ~A" token)))))
 
 ;; Generic parse assignment operator function
@@ -691,5 +692,6 @@
         (:ASBITOR 'parse-special-assignment)
         (:ASLOGAND 'parse-special-assignment)
         (:ASLOGOR 'parse-special-assignment)
+        (:ASEXPONENT 'parse-special-assignment)
         (:IN 'parse-infix-operator)
         (t (error (format nil "ParserError: Reached end of left denotations map with token ~A" token)))))

@@ -152,6 +152,7 @@
                     (:MinusBop (js-minus (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:TimesBop (js-times (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:DivBop (js-div (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
+                    (:PowBop (js-exponent (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     ;; Inequality operators
                     (:LtBop (js-lt (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
                     (:LteBop (js-lte (resolve-reference (expr-eval left)) (resolve-reference (expr-eval right))))
@@ -532,6 +533,7 @@
                             (:MinusAssign 'js-minus)
                             (:TimesAssign 'js-times)
                             (:DivAssign 'js-div)
+                            (:ExponentAssign 'js-exponent)
                             (:RemAssign 'js-rem)
                             (:LogOrAssign 'js-logor)
                             (:LogAndAssign 'js-logand)

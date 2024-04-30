@@ -72,7 +72,7 @@ Related Files:
 
 Example:
 
-The parser would turn the sequence of tokens given into the previous example into the following AST:
+The parser would turn the sequence of tokens given in the previous example into the following AST:
 
 <img src="media/AST.png" />
 
@@ -132,9 +132,118 @@ Related Files:
     <li>lisp-js.lisp</li>
 </ul>
 
+## What JS Functionality Does LispJS Include?
+
+### Primitive Data Types
+
+<ul>
+    <li>Number</li>
+    <li>Boolean</li>
+    <li>String</li>
+    <li>Undefined</li>
+    <li>Null</li>
+</ul>
+
+### Infix Operators
+
+<ul>
+    <li>Arithmetic: + - * / ** %</li>
+    <li>Inequality: > >= < <= </li>
+    <li>Equality: == === != !==</li>
+    <li>Logical: && ||</li>
+    <li>Bitwise: & | ^</li>
+    <li>Shifting: << >></li>
+    <li>Object-Specific: in</li>
+</ul>
+
+### Prefix Operators
+
+<ul>
+    <li>Arithmetic: + -</li>
+    <li>Logical: !</li>
+    <li>Bitwise: ~</li>
+    <li>Miscellaneous: typeof</li>
+</ul>
+
+### Assignment
+
+<ul>
+    <li>const ... = ...</li>
+    <li>let ... = ...</li>
+    <li>let ...</li>
+    <li>... = ...</li>
+</ul>
+
+### Operation-Assignment
+
+<ul>
+    <li>Arithmetic: += -= *= /= **= %=</li>
+    <li>Logical: &&= ||=</li>
+    <li>Bitwise: &= |= ^=</li>
+    <li>Shifting: <<= >>=</li>
+</ul>
+
+### Loops
+
+<ul>
+    <li>for(...;...;...){...}</li>
+    <li>for(var in object){...}</li>
+    <li>while(...){...}</li>
+</ul>
+
+### Conditionals
+<ul>
+    <li>if(...){...} else if(...){...} else{...}</li>
+</ul>
+
+### Blocks
+
+<ul>
+    <li>{...}</li>
+</ul>
+
+### Functions
+
+<ul>
+    <li>Named: function f(...){...}</li>
+    <li>Anonymous: function(...){...}</li>
+    <li>Arrow: (...) => ...</li>
+    <li>Lexical Scope</li>
+    <li>'return' keyword</li>
+</ul>
+
+### Objects
+
+<ul>
+    <li>Syntax: {name:value, name:value, ...}</li>
+    <li>Dot Access: object.key</li>
+    <li>Index Access: object[key]</li>
+    <li>'this' keyword</li>
+</ul>
+
+### Lists
+<ul>
+    <li>Syntax: [value, value, value, ...]</li>
+    <li>Lists are objects under the hood</li>
+    <li>Special pretty-print rules</li>
+</ul>
+
+### Primitive Functions
+<ul>
+    <li>Number(...)</li>
+    <li>String(...)</li>
+    <li>Boolean(...)</li>
+    <li>print(value, value, ...)</li>
+    <li>input(&optional prompt)</li>
+    <li>random(&optional max-number)</li>
+    <li>size(object)</li>
+    <li>keys(object)</li>
+    <li>exit(&optional status-code)</li>
+</ul>
+
 ## Development Information
 
-This project was developed on Ubuntu 20.04.6 LTS and MacOS Sonoma.
+This project was developed and tested on Ubuntu 20.04.6 LTS and MacOS Sonoma.
 
 ## Credits
 
