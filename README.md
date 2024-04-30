@@ -124,7 +124,7 @@ undefined
 
 ### Command Line Interface
 
-The command line interface is how you may most commonly interact with LispJS. The CLI is very simple, and just waits until you type something, then feeds the string you input into the rest of the toolchain, updates the environment, and finally pretty prints the returned value.
+The command line interface is how you may most commonly interact with LispJS. The CLI is very simple; it just waits until you type something, feeds the string you input into the rest of the toolchain, and finally pretty prints the returned value.
 
 Related Files:
 
