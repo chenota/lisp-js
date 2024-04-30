@@ -248,7 +248,7 @@ Related Files:
     <li>The interpreter memory leaks by not deleteing references on the heap that are completely lost. In the future, I could fix memory leaks by implementing a garbage collector or some sort of smart pointer system.</li>
     <li>The heap is implemented as an associative array with O(n) access time, which could be improved in the future by implementing the heap using a smarter data structure, like a map.
     <li>A big part of JavaScript is that it is event driven, and my implementation is not event driven. In the future, I could implement an async/await system to make my implementation much closer to full-featured JavaScript.</li>
-    <li>Many JavaScript syntax errors will trigger a Common LISP runtime error message that gives you no information about what went wrong. In the future, I could add a more robust error system to add more helpful error messages.</li>
+    <li>Many JavaScript syntax errors will trigger a Common LISP runtime error message that gives no useful information about what went wrong. In the future, I could add a robust error system that gives more helpful error messages.</li>
 </ol>
 
 ## Concluding Thoughts
