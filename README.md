@@ -62,7 +62,17 @@ into this sequence of tokens:
 
 ### Parser
 
-The parser follows up the lexer by structuring a given sequence of tokens into a tree structure which represents an order of operations that is meaningful to the program. The specific type of parser I implemented is a Pratt Parser, which I chose because Pratt Parsers are very easy to hack and add on to, unlike other popular parsing methods like LALR which need a formal grammar. Furthermore, Pratt Parsers are top-down but can parse matching parenthesis and left-recursion unlike the more popular ll(n) parsing method, which I find super interesting!
+The parser follows up the lexer by structuring a given sequence of tokens into a tree structure which represents an order of operations that is meaningful to the program. The specific type of parser I implemented is a Pratt Parser, which I chose because Pratt Parsers are very easy to hack and add on to, unlike other popular parsing methods like LALR which need a formal grammar. Furthermore, Pratt Parsers are top-down but can parse matching parenthesis and left-recursion unlike the more popular ll(n) parsing method, which I find super interesting! In short, Pratt Parsers associate a binding power with operators, and group operators with higher binding powers closer to each other. My particular parser implementation uses parselets, which are functions that tell the parser how to parse tokens it encounters. Pratt Parsers were designed with basic arithmetic expressions in mind, so I had to do quite a bit of syntax directed translation (SDT) to make a clean abstract syntax tree (AST) out of JavaScript code.
+
+Related Files:
+<ul>
+    <li>pratt-parser.lisp</li>
+    <li>pratt-parselets.lisp</li>
+</ul>
+
+Example:
+
+
 
 ## Development Information
 
