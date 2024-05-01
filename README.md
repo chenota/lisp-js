@@ -1,6 +1,6 @@
 # LispJS
 
-LispJS is a JavaScript interpreter written entirely in Common Lisp, that includes both a CLI and file functionality.
+LispJS is a JavaScript interpreter written entirely in Common Lisp, that includes both a CLI and run-from-file functionality.
 
 ## How to run LispJS
 
