@@ -78,7 +78,7 @@ The parser would turn the sequence of tokens given in the previous example into 
 
 ### Evaluator
 
-The evaluator is the final step in the software chain, and it evaluates boils an AST from the parser down into a singular value using big-step semantics. Big-step semantics are much slower than small-step semantics (in some cases), however they are much more intuitive and easier to understand, which is why I chose to write the evaluator using big-step semantics. 
+The evaluator is the final step in the software chain, and it boils an AST from the parser down into a singular value using big-step semantics. Big-step semantics are much slower than small-step semantics (in some cases), however they are much more intuitive and easier to understand, which is why I chose to write the evaluator using big-step semantics. 
 
 To handle variables, the evaluator manages two environments: the call stack and the heap. The call stack stores all named variables, and each stack frame is considered its own scope. When a variable is referenced in code, the call stack is searched from the top down and the first variable binding found is returned. Stack frames are added when a scope is entered, and removed when a scope is exited. Constant variables are stored directly on the stack because variables stored on the stack are not allowed to be modified or redifined (in the current scope). The heap is used to store mutable variables and non-primitve objects, and works by mapping reference numbers (like pointers) to values, and allowing any pointed-to value to be updated. The stack and the heap work together to create mutable variables by storing the variable's value on the heap, and the pointer to the value on the stack.
 
