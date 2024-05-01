@@ -33,7 +33,7 @@ The compiled binary can be ran like so:
 ./lispjs [file-name]
 ```
 
-## Software Pipeline Overview
+## Software Overview
 
 LispJS was built entirely from scratch (by me!), and follows a typical interpreter software pipeline.
 
@@ -159,10 +159,15 @@ Related Files:
 ### Prefix Operators
 
 <ul>
-    <li>Arithmetic: + -</li>
+    <li>Arithmetic: + - ++ --</li>
     <li>Logical: !</li>
     <li>Bitwise: ~</li>
     <li>Miscellaneous: typeof</li>
+</ul>
+
+### Postfix Operators
+<ul>
+    <li>Arithmetic: ++ --</li>
 </ul>
 
 ### Assignment
